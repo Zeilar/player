@@ -1,13 +1,11 @@
 .AngelinPlayer {
 	--color-primary: rgb(0, 160, 255);
 	--color-text: rgb(225, 225, 225);
-
 	position: relative;
 	cursor: pointer;
 	// max-width: 100%;
 	max-width: 1000px;
 	color: var(--color-text);
-
 	&::before {
 		content: "";
 		opacity: 0;
@@ -23,7 +21,6 @@
 		height: 100%;
 		transition: 0.15s;
 	}
-
 	&:hover,
 	&[data-paused="true"] {
 		&::before,
@@ -31,7 +28,6 @@
 			opacity: 1;
 		}
 	}
-
 	*,
 	*::before,
 	*::after {
@@ -46,7 +42,8 @@
 }
 
 .AngelinPlayer__controls {
-	padding: 5px;
+	cursor: default;
+	padding: 8px;
 	position: absolute;
 	bottom: 0;
 	opacity: 0;
@@ -56,12 +53,18 @@
 }
 
 .AngelinPlayer__icon {
+	transition: 0.15s;
+	fill: var(--icon-color);
 	width: 35px;
 	height: 35px;
 }
 
 .AngelinPlayer__button {
 	--icon-color: var(--color-text);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -70,20 +73,27 @@
 	}
 }
 
-.AngelinPlayer__icon {
-	fill: var(--icon-color);
-}
-
 .AngelinPlayer__timeline {
+	--transformY: translateY(-100%);
+	border-radius: 100px;
+	overflow: hidden;
 	height: 5px;
 	transition: 0.15s;
-
+	transform: var(--transformY);
+	margin-bottom: 2px;
 	&:hover {
-		height: 10px;
+		transform: var(--transformY) scaleY(2);
 	}
 }
 
 .AngelinPlayer__timeline-grabber {
+	background-color: --color-primary;
+	width: 10px;
+	height: 10px;
+	border-radius: 100%;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
 }
 
 .AngelinPlayer__timeline-track {
@@ -99,11 +109,18 @@
 }
 
 .AngelinPlayer__big-resume-icon {
+	opacity: 1;
 	pointer-events: none;
 	position: absolute;
 	transform: translate(-50%, -50%);
 	top: 50%;
 	left: 50%;
 	width: 100px;
+	filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.35));
 	fill: var(--color-text);
+	&[data-hidden="true"] {
+		transform: scale(1.5);
+		transition: 0.15s;
+		opacity: 0;
+	}
 }

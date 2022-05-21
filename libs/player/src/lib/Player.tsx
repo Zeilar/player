@@ -16,21 +16,20 @@ export function Player({
 	track,
 	autoplay,
 }: PlayerProps) {
-	const player = useRef<HTMLVideoElement>(null);
-	const timeline = useRef<HTMLDivElement>(null);
+	const videoEl = useRef<HTMLVideoElement>(null);
+	const timelineEl = useRef<HTMLDivElement>(null);
+	const controlsEl = useRef<HTMLDivElement>(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 
-	console.log({ isPlaying });
-
 	useEffect(() => {
-		if (!player.current) {
+		if (!videoEl.current) {
 			return;
 		}
-		setIsPlaying(!player.current.paused);
+		setIsPlaying(!videoEl.current.paused);
 	}, []);
 
 	function onTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
@@ -39,45 +38,48 @@ export function Player({
 	}
 
 	function play() {
-		if (!player.current) {
+		if (!videoEl.current) {
 			return;
 		}
-		player.current.play();
+		videoEl.current.play();
 	}
 
 	function pause() {
-		if (!player.current) {
+		if (!videoEl.current) {
 			return;
 		}
-		player.current.pause();
+		videoEl.current.pause();
 	}
 
 	function updateTimeline(e: React.MouseEvent | MouseEvent) {
-		if (!player.current || !timeline.current) {
+		if (!videoEl.current || !timelineEl.current) {
 			return;
 		}
-		const rect = timeline.current.getBoundingClientRect();
+		const rect = timelineEl.current.getBoundingClientRect();
 		const percent =
 			Math.min(Math.max(0, e.clientX - rect.x), rect.width) / rect.width;
-		const progress = player.current.duration * percent;
-		player.current.currentTime = progress;
+		const progress = videoEl.current.duration * percent;
+		videoEl.current.currentTime = progress;
 		setProgress(progress);
 	}
 
 	function onTimelineClick(e: React.MouseEvent<HTMLDivElement>) {
 		e.preventDefault();
+		if (e.buttons !== 1) {
+			return;
+		}
 		setIsScrubbing(true);
 		updateTimeline(e);
 	}
 
 	function togglePlay() {
-		if (!player.current) {
+		if (!videoEl.current) {
 			return;
 		}
-		if (player.current.paused) {
-			player.current.play();
+		if (videoEl.current.paused) {
+			videoEl.current.play();
 		} else {
-			player.current.pause();
+			videoEl.current.pause();
 		}
 	}
 
@@ -87,9 +89,28 @@ export function Player({
 	}
 
 	useEffect(() => {
+		function customContextMenu(e: MouseEvent) {
+			if (!videoEl.current || !controlsEl.current) {
+				return;
+			}
+			const target = e.target as HTMLElement;
+			if (
+				videoEl.current.contains(target) ||
+				controlsEl.current.contains(target)
+			) {
+				e.preventDefault();
+			}
+		}
+		document.addEventListener("contextmenu", customContextMenu);
+		return () => {
+			document.removeEventListener("contextmenu", customContextMenu);
+		};
+	}, []);
+
+	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
 			e.preventDefault();
-			if (!player.current || !isScrubbing) {
+			if (!videoEl.current || !isScrubbing) {
 				return;
 			}
 			updateTimeline(e);
@@ -115,26 +136,30 @@ export function Player({
 	}, [isScrubbing]);
 
 	function getProgressPercent() {
-		return player.current
-			? `${(player.current.currentTime / player.current.duration) * 100}%`
-			: undefined;
+		if (!videoEl.current) {
+			return undefined;
+		}
+		const percent =
+			(videoEl.current.currentTime / videoEl.current.duration) * 100;
+		return `${percent}%`;
 	}
 
 	return (
 		<div className="AngelinPlayer" data-paused={!isPlaying}>
-			{player.current && !isPlaying && (
+			{videoEl.current && (
 				<svg
 					className="AngelinPlayer__big-resume-icon"
 					viewBox="0 0 24 24"
+					data-hidden={isPlaying}
 				>
 					<path d="M8 5v14l11-7z"></path>
 				</svg>
 			)}
-			<div className="AngelinPlayer__controls">
-				{player.current && isLoaded && (
+			<div className="AngelinPlayer__controls" ref={controlsEl}>
+				{videoEl.current && isLoaded && (
 					<div
 						className="AngelinPlayer__timeline"
-						ref={timeline}
+						ref={timelineEl}
 						onMouseDown={onTimelineClick}
 					>
 						<div className="AngelinPlayer__timeline-grabber" />
@@ -191,7 +216,7 @@ export function Player({
 				onLoadedData={() => setIsLoaded(true)}
 				className="AngelinPlayer__video"
 				style={{ aspectRatio }}
-				ref={player}
+				ref={videoEl}
 				autoPlay={autoplay}
 				onPlay={onPlayHandler}
 				onPause={() => setIsPlaying(false)}
