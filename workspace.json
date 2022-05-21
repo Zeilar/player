@@ -1,8 +1,7 @@
 {
-  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
-  "version": 2,
-  "projects": {
-    "player": "apps/player",
-    "player-e2e": "apps/player-e2e"
-  }
+	"$schema": "./node_modules/nx/schemas/workspace-schema.json",
+	"version": 2,
+	"projects": {
+		"player": "libs/player"
+	}
 }
