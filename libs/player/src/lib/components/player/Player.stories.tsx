@@ -1,5 +1,5 @@
 import { Story, Meta } from "@storybook/react";
-import { Player, PlayerProps } from "./Player";
+import { Player, PlayerProps } from ".";
 
 export default {
 	component: Player,

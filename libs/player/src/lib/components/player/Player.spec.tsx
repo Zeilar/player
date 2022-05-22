@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { Player } from "./Player";
+import { Player } from ".";
 
 describe("Player", () => {
 	it("should render successfully", () => {

@@ -1,1 +1,1 @@
-export * from "./lib/Player";
+export * from "./lib/components/player";
