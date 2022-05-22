@@ -102,14 +102,11 @@ export function Player({
 
 	useEffect(() => {
 		function customContextMenu(e: MouseEvent) {
-			if (!videoEl.current || !controlsEl.current) {
+			if (!wrapperEl.current || !controlsEl.current) {
 				return;
 			}
 			const target = e.target as HTMLElement;
-			if (
-				videoEl.current.contains(target) ||
-				controlsEl.current.contains(target)
-			) {
+			if (wrapperEl.current.contains(target)) {
 				e.preventDefault();
 			}
 		}
