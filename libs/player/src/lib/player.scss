@@ -2,6 +2,9 @@
 	--color-primary: rgb(0, 160, 255);
 	--color-text: rgb(225, 225, 225);
 	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	cursor: pointer;
 	// max-width: 100%;
 	max-width: 1000px;
@@ -12,19 +15,19 @@
 		pointer-events: none;
 		position: absolute;
 		bottom: 0;
-		background-image: linear-gradient(
-			to top,
-			rgba(0, 0, 0, 0.75),
-			transparent
-		);
+		background-color: rgba(0, 0, 0, 0.5);
 		width: 100%;
 		height: 100%;
 		transition: 0.15s;
 	}
 	&:hover,
 	&[data-paused="true"] {
-		&::before,
 		.AngelinPlayer__controls {
+			opacity: 1;
+		}
+	}
+	&[data-paused="true"] {
+		&::before {
 			opacity: 1;
 		}
 	}
@@ -41,7 +44,15 @@
 	background-color: black;
 }
 
+.AngelinPlayer__controls-buttons {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
 .AngelinPlayer__controls {
+	display: flex;
+	flex-direction: column;
 	cursor: default;
 	padding: 8px;
 	position: absolute;
@@ -50,6 +61,21 @@
 	z-index: 100;
 	width: 100%;
 	transition: 0.15s;
+	&::before {
+		content: "";
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		background-image: linear-gradient(
+			0deg,
+			rgba(0, 0, 0, 0.8) 0,
+			rgba(0, 0, 0, 0.35) 75%,
+			transparent
+		);
+	}
 }
 
 .AngelinPlayer__icon {
@@ -74,15 +100,14 @@
 }
 
 .AngelinPlayer__timeline {
-	--transformY: translateY(-100%);
-	border-radius: 100px;
+	--transform: translateY(-100%);
 	overflow: hidden;
-	height: 5px;
+	height: 6px;
 	transition: 0.15s;
-	transform: var(--transformY);
-	margin-bottom: 2px;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+	transform: var(--transform);
 	&:hover {
-		transform: var(--transformY) scaleY(2);
+		transform: var(--transform) scaleY(1.5);
 	}
 }
 
@@ -98,7 +123,7 @@
 
 .AngelinPlayer__timeline-track {
 	cursor: pointer;
-	background-color: rgba(0, 80, 127);
+	background-color: rgba(255, 255, 255, 0.5);
 	height: 100%;
 	width: 100%;
 }
@@ -109,18 +134,19 @@
 }
 
 .AngelinPlayer__big-resume-icon {
+	--transform: translate(-50%, -50%);
 	opacity: 1;
 	pointer-events: none;
 	position: absolute;
-	transform: translate(-50%, -50%);
+	transform: var(--transform);
 	top: 50%;
 	left: 50%;
 	width: 100px;
 	filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.35));
 	fill: var(--color-text);
 	&[data-hidden="true"] {
-		transform: scale(1.5);
-		transition: 0.15s;
+		transform: var(--transform) scale(1.5);
+		transition: 0.35s;
 		opacity: 0;
 	}
 }
