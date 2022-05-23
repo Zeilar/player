@@ -1,5 +1,60 @@
 import { useRef, useState, useEffect } from "react";
-import "./player.scss";
+import "../../styles/player.scss";
+import { PlayerControls } from "../PlayerControls";
+
+function clamp(n: number, min: number, max: number) {
+	return Math.min(Math.max(n, min), max);
+}
+
+function play(player: HTMLVideoElement | null) {
+	player?.play();
+}
+
+function pause(player: HTMLVideoElement | null) {
+	player?.pause();
+}
+
+function enterFullscreen(wrapperEl: HTMLDivElement | null) {
+	wrapperEl?.requestFullscreen();
+}
+
+function formatProgress(player: HTMLVideoElement | null) {
+	if (!player) {
+		return undefined;
+	}
+	const percent = (player.currentTime / player.duration) * 100;
+	return `${percent}%`;
+}
+
+function exitFullscreen() {
+	document.exitFullscreen();
+}
+
+function toggleFullscreen(wrapperEl: HTMLDivElement | null) {
+	if (document.fullscreenElement) {
+		exitFullscreen();
+	} else {
+		enterFullscreen(wrapperEl);
+	}
+}
+
+function skip(player: HTMLVideoElement | null, seconds: number) {
+	if (!player) {
+		return;
+	}
+	player.currentTime += seconds;
+}
+
+function togglePlay(player: HTMLVideoElement | null) {
+	if (!player) {
+		return;
+	}
+	if (player.paused) {
+		player.play();
+	} else {
+		player.pause();
+	}
+}
 
 export interface PlayerProps {
 	src?: string;
@@ -26,6 +81,7 @@ export function Player({
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [isMuted, setIsMuted] = useState(false);
 
 	useEffect(() => {
 		if (!videoEl.current) {
@@ -37,20 +93,6 @@ export function Player({
 	function onTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
 		const element = e.target as HTMLVideoElement;
 		setProgress(element.currentTime);
-	}
-
-	function play() {
-		if (!videoEl.current) {
-			return;
-		}
-		videoEl.current.play();
-	}
-
-	function pause() {
-		if (!videoEl.current) {
-			return;
-		}
-		videoEl.current.pause();
 	}
 
 	function updateTimeline(e: React.MouseEvent | MouseEvent) {
@@ -66,26 +108,15 @@ export function Player({
 	}
 
 	function onTimelineClick(e: React.MouseEvent<HTMLDivElement>) {
-		e.preventDefault();
 		if (e.buttons !== 1) {
 			return;
 		}
+		e.preventDefault();
 		setIsScrubbing(true);
 		updateTimeline(e);
 	}
 
-	function togglePlay() {
-		if (!videoEl.current) {
-			return;
-		}
-		if (videoEl.current.paused) {
-			videoEl.current.play();
-		} else {
-			videoEl.current.pause();
-		}
-	}
-
-	function onPlayHandler() {
+	function onPlay() {
 		setIsEnded(false);
 		setIsPlaying(true);
 	}
@@ -94,13 +125,6 @@ export function Player({
 		function fullscreenHandler() {
 			setIsFullscreen(Boolean(document.fullscreenElement));
 		}
-		document.addEventListener("fullscreenchange", fullscreenHandler);
-		return () => {
-			document.removeEventListener("fullscreenchange", fullscreenHandler);
-		};
-	}, []);
-
-	useEffect(() => {
 		function customContextMenu(e: MouseEvent) {
 			if (!wrapperEl.current || !controlsEl.current) {
 				return;
@@ -110,8 +134,10 @@ export function Player({
 				e.preventDefault();
 			}
 		}
+		document.addEventListener("fullscreenchange", fullscreenHandler);
 		document.addEventListener("contextmenu", customContextMenu);
 		return () => {
+			document.removeEventListener("fullscreenchange", fullscreenHandler);
 			document.removeEventListener("contextmenu", customContextMenu);
 		};
 	}, []);
@@ -124,13 +150,6 @@ export function Player({
 			}
 			updateTimeline(e);
 		}
-		document.addEventListener("mousemove", mouseMoveHandler);
-		return () => {
-			document.removeEventListener("mousemove", mouseMoveHandler);
-		};
-	}, [isScrubbing]);
-
-	useEffect(() => {
 		function scrubHandler(e: MouseEvent) {
 			e.preventDefault();
 			if (!isScrubbing) {
@@ -138,130 +157,94 @@ export function Player({
 			}
 			setIsScrubbing(false);
 		}
+		document.addEventListener("mousemove", mouseMoveHandler);
 		document.addEventListener("mouseup", scrubHandler);
 		return () => {
+			document.removeEventListener("mousemove", mouseMoveHandler);
 			document.removeEventListener("mouseup", scrubHandler);
 		};
 	}, [isScrubbing]);
 
-	function getProgressPercent() {
+	function keyShortcutHandler(e: React.KeyboardEvent) {
 		if (!videoEl.current) {
-			return undefined;
+			return;
 		}
-		const percent =
-			(videoEl.current.currentTime / videoEl.current.duration) * 100;
-		return `${percent}%`;
+		console.log(e.key);
+		e.stopPropagation();
+		switch (e.key) {
+			case "c":
+				// toggleCaptions
+				break;
+			case "f":
+				toggleFullscreen(wrapperEl.current);
+				break;
+			case " ":
+				e.preventDefault();
+				togglePlay(videoEl.current);
+				break;
+			case "ArrowRight":
+				skip(videoEl.current, 5);
+				break;
+			case "ArrowLeft":
+				skip(videoEl.current, -5);
+				break;
+			case "ArrowUp":
+				videoEl.current.volume = clamp(
+					videoEl.current.volume + 0.05,
+					0,
+					1
+				);
+				break;
+			case "ArrowDown":
+				videoEl.current.volume = clamp(
+					videoEl.current.volume - 0.05,
+					0,
+					1
+				);
+				break;
+			case "m":
+				// mute
+				setIsMuted(p => !p);
+				break;
+		}
 	}
 
 	return (
-		<div className="AngelinPlayer" data-paused={!isPlaying} ref={wrapperEl}>
-			{videoEl.current && (
-				<svg
-					className="AngelinPlayer__big-resume-icon"
-					viewBox="0 0 24 24"
-					data-hidden={isPlaying}
-				>
-					<path d="M8 5v14l11-7z"></path>
-				</svg>
-			)}
-			<div className="AngelinPlayer__controls" ref={controlsEl}>
-				{videoEl.current && isLoaded && videoEl.current.duration > 0 && (
-					<div
-						className="AngelinPlayer__timeline"
-						ref={timelineEl}
-						onMouseDown={onTimelineClick}
-					>
-						<div className="AngelinPlayer__timeline-grabber" />
-						<div
-							className="AngelinPlayer__timeline-track"
-							data-timeline-track
-						>
-							<div
-								className="AngelinPlayer__timeline-track__progress"
-								style={{ width: getProgressPercent() }}
-							/>
-						</div>
-					</div>
-				)}
-				<div className="AngelinPlayer__controls-buttons">
-					{isPlaying ? (
-						<button
-							className="AngelinPlayer__button"
-							disabled={!isLoaded}
-							onClick={pause}
-						>
-							<svg
-								className="AngelinPlayer__icon"
-								focusable="false"
-								viewBox="0 0 24 24"
-							>
-								<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
-							</svg>
-						</button>
-					) : (
-						<button
-							className="AngelinPlayer__button"
-							disabled={!isLoaded}
-							onClick={play}
-						>
-							{isEnded ? (
-								<svg
-									className="AngelinPlayer__icon"
-									viewBox="0 0 24 24"
-								>
-									<path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"></path>
-								</svg>
-							) : (
-								<svg
-									className="AngelinPlayer__icon"
-									viewBox="0 0 24 24"
-								>
-									<path d="M8 5v14l11-7z"></path>
-								</svg>
-							)}
-						</button>
-					)}
-					{isFullscreen ? (
-						<button
-							className="AngelinPlayer__button"
-							onClick={document.exitFullscreen}
-						>
-							<svg
-								className="AngelinPlayer__icon"
-								viewBox="0 0 24 24"
-							>
-								<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"></path>
-							</svg>
-						</button>
-					) : (
-						<button
-							className="AngelinPlayer__button"
-							onClick={() =>
-								wrapperEl.current?.requestFullscreen()
-							}
-						>
-							<svg
-								className="AngelinPlayer__icon"
-								viewBox="0 0 24 24"
-							>
-								<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"></path>
-							</svg>
-						</button>
-					)}
-				</div>
-			</div>
+		<div
+			className="AngelinPlayer"
+			data-paused={videoEl.current?.paused === true}
+			ref={wrapperEl}
+			tabIndex={1}
+			onKeyDown={keyShortcutHandler}
+		>
+			<PlayerControls
+				controlsEl={controlsEl}
+				timelineEl={timelineEl}
+				isEnded={isEnded}
+				isFullscreen={isFullscreen}
+				isPlaying={isPlaying}
+				isVideoLoaded={isLoaded}
+				onEnterFullscreen={() => enterFullscreen(wrapperEl.current)}
+				onExitFullscreen={exitFullscreen}
+				onToggleMute={() => setIsMuted(p => !p)}
+				onPause={() => pause(videoEl.current)}
+				onPlay={() => play(videoEl.current)}
+				onTimelineClick={onTimelineClick}
+				progress={progress}
+				progressPercent={formatProgress(videoEl.current)}
+			/>
 			<video
-				onLoadedData={() => setIsLoaded(true)}
 				className="AngelinPlayer__video"
 				style={{ aspectRatio }}
 				ref={videoEl}
 				autoPlay={autoplay}
-				onPlay={onPlayHandler}
+				controls={controls}
+				onPlay={onPlay}
+				onLoadedData={() => setIsLoaded(true)}
 				onPause={() => setIsPlaying(false)}
 				onEnded={() => setIsEnded(true)}
+				onClick={() => togglePlay(videoEl.current)}
 				onTimeUpdate={onTimeUpdate}
-				onClick={togglePlay}
-				controls={controls}
 			>
 				{src && <source src={src} />}
 				{track && <track src={track} />}

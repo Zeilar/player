@@ -6,8 +6,7 @@
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	// max-width: 100%;
-	max-width: 1000px;
+	max-width: 100%;
 	color: var(--color-text);
 	&::before {
 		content: "";
@@ -30,6 +29,9 @@
 		&::before {
 			opacity: 1;
 		}
+	}
+	&:focus {
+		outline: 0;
 	}
 	*,
 	*::before,
