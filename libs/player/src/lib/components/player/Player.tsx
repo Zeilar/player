@@ -116,8 +116,6 @@ export function Player({
 		};
 	}, []);
 
-	console.log({ isMuted, volume, prevVolume: prevVolume.current });
-
 	useEffect(() => {
 		if (!videoEl.current) {
 			return;
