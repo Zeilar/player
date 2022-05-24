@@ -56,6 +56,7 @@ export function Player({
 		const percent = Math.min(Math.max(0, e.clientX - x), width) / width;
 		const progress = videoEl.current.duration * percent;
 		videoEl.current.currentTime = progress;
+		// timelineEl.current.style.set
 		setProgress(progress);
 	}
 
@@ -124,6 +125,12 @@ export function Player({
 		console.log(e.key);
 		e.stopPropagation();
 		switch (e.key) {
+			case "Home":
+				videoEl.current.currentTime = 0;
+				break;
+			case "End":
+				videoEl.current.currentTime = videoEl.current.duration;
+				break;
 			case "c":
 				// toggleCaptions
 				break;

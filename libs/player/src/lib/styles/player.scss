@@ -56,7 +56,8 @@
 	display: flex;
 	flex-direction: column;
 	cursor: default;
-	padding: 8px;
+	padding: 10px 15px;
+	gap: 10px;
 	position: absolute;
 	bottom: 0;
 	opacity: 0;
@@ -102,25 +103,16 @@
 }
 
 .AngelinPlayer__timeline {
-	--transform: translateY(-100%);
-	overflow: hidden;
+	--grabberShadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
 	height: 6px;
 	transition: 0.15s;
 	box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-	transform: var(--transform);
-	&:hover {
-		transform: var(--transform) scaleY(1.5);
+	.AngelinPlayer__timeline-track__progress::after {
+		box-shadow: var(--grabberShadow);
 	}
-}
-
-.AngelinPlayer__timeline-grabber {
-	background-color: --color-primary;
-	width: 10px;
-	height: 10px;
-	border-radius: 100%;
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
+	&:active .AngelinPlayer__timeline-track__progress::after {
+		box-shadow: var(--grabberShadow), 0 0 0 3px rgba(255, 255, 255, 0.25);
+	}
 }
 
 .AngelinPlayer__timeline-track {
@@ -132,7 +124,19 @@
 
 .AngelinPlayer__timeline-track__progress {
 	background-color: var(--color-primary);
+	position: relative;
 	height: 100%;
+	&::after {
+		background-color: var(--color-text);
+		content: "";
+		border-radius: 100%;
+		width: 15px;
+		height: 15px;
+		right: -15px;
+		top: 50%;
+		position: absolute;
+		transform: translate(-50%, -50%);
+	}
 }
 
 .AngelinPlayer__big-resume-icon {
