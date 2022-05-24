@@ -93,7 +93,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0;
+	padding: 5px;
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -155,4 +155,9 @@
 		transition: 0.35s;
 		opacity: 0;
 	}
+}
+
+.AngelinPlayer__controls-buttons__group {
+	display: flex;
+	gap: 10px;
 }

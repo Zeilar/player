@@ -3,4 +3,13 @@ export type Icon =
 	| "FullscreenOpen"
 	| "Pause"
 	| "Play"
-	| "Replay";
+	| "Replay"
+	| "VolumeDown"
+	| "VolumeUp"
+	| "VolumeOff";
+
+export type IconComponent = React.FunctionComponent<
+	React.SVGProps<SVGSVGElement> & {
+		title?: string | undefined;
+	}
+>;

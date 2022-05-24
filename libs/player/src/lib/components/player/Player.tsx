@@ -19,6 +19,7 @@ export function Player({
 	track,
 	autoplay,
 }: PlayerProps) {
+	const prevVolume = useRef<number>(0.5);
 	const wrapperEl = useRef<HTMLDivElement>(null);
 	const videoEl = useRef<HTMLVideoElement>(null);
 	const timelineEl = useRef<HTMLDivElement>(null);
@@ -31,6 +32,7 @@ export function Player({
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [activeSrc, setActiveSrc] = useState<keyof PlayerSrc>("default");
 	const [isMuted, setIsMuted] = useState(false);
+	const [volume, setVolume] = useState<number>(0.5);
 
 	useEffect(() => {
 		if (!videoEl.current) {
@@ -43,9 +45,30 @@ export function Player({
 		setActiveSrc(src);
 	}
 
+	function onVolumeChange(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
+		prevVolume.current = isMuted ? volume : e.currentTarget.volume;
+		setVolume(e.currentTarget.volume);
+	}
+
+	function onMute() {
+		if (!videoEl.current) {
+			return;
+		}
+		setIsMuted(true);
+	}
+
+	function onUnmute() {
+		if (!videoEl.current) {
+			return;
+		}
+		setIsMuted(false);
+	}
+
 	function onTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
-		const element = e.target as HTMLVideoElement;
-		setProgress(element.currentTime);
+		if (isScrubbing || !e.currentTarget) {
+			return;
+		}
+		setProgress(e.currentTarget.currentTime);
 	}
 
 	function updateTimeline(e: React.MouseEvent | MouseEvent) {
@@ -56,7 +79,6 @@ export function Player({
 		const percent = Math.min(Math.max(0, e.clientX - x), width) / width;
 		const progress = videoEl.current.duration * percent;
 		videoEl.current.currentTime = progress;
-		// timelineEl.current.style.set
 		setProgress(progress);
 	}
 
@@ -82,8 +104,7 @@ export function Player({
 			if (!wrapperEl.current || !controlsEl.current) {
 				return;
 			}
-			const target = e.target as HTMLElement;
-			if (wrapperEl.current.contains(target)) {
+			if (wrapperEl.current.contains(e.currentTarget as HTMLElement)) {
 				e.preventDefault();
 			}
 		}
@@ -95,6 +116,15 @@ export function Player({
 		};
 	}, []);
 
+	console.log({ isMuted, volume, prevVolume: prevVolume.current });
+
+	useEffect(() => {
+		if (!videoEl.current) {
+			return;
+		}
+		videoEl.current.volume = isMuted ? 0 : prevVolume.current;
+	}, [isMuted]);
+
 	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
 			e.preventDefault();
@@ -104,10 +134,10 @@ export function Player({
 			updateTimeline(e);
 		}
 		function scrubHandler(e: MouseEvent) {
-			e.preventDefault();
 			if (!isScrubbing) {
 				return;
 			}
+			e.preventDefault();
 			setIsScrubbing(false);
 		}
 		document.addEventListener("mousemove", mouseMoveHandler);
@@ -148,14 +178,33 @@ export function Player({
 				helpers.skip(videoEl.current, -5);
 				break;
 			case "ArrowUp":
-				helpers.bumpVolume(videoEl.current, "up");
+				if (isMuted) {
+					const volume = helpers.clamp(
+						prevVolume.current + 0.05,
+						0,
+						1
+					);
+					prevVolume.current = volume;
+					setVolume(volume);
+				} else {
+					helpers.bumpVolume(videoEl.current, "up");
+				}
 				break;
 			case "ArrowDown":
-				helpers.bumpVolume(videoEl.current, "down");
+				if (isMuted) {
+					const volume = helpers.clamp(
+						prevVolume.current - 0.05,
+						0,
+						1
+					);
+					prevVolume.current = volume;
+					setVolume(volume);
+				} else {
+					helpers.bumpVolume(videoEl.current, "down");
+				}
 				break;
 			case "m":
-				// mute
-				setIsMuted(p => !p);
+				isMuted ? onUnmute() : onMute();
 				break;
 		}
 	}
@@ -175,14 +224,17 @@ export function Player({
 				isFullscreen={isFullscreen}
 				isPlaying={isPlaying}
 				isVideoLoaded={isLoaded}
+				isMuted={isMuted}
 				onEnterFullscreen={() =>
 					helpers.enterFullscreen(wrapperEl.current)
 				}
 				onExitFullscreen={helpers.exitFullscreen}
-				onToggleMute={() => setIsMuted(p => !p)}
+				onMute={onMute}
+				onUnmute={onUnmute}
 				onPause={() => helpers.pause(videoEl.current)}
 				onPlay={() => helpers.play(videoEl.current)}
 				onTimelineClick={onTimelineClick}
+				volume={volume}
 				progress={progress}
 				progressPercent={helpers.formatProgress(videoEl.current)}
 				src={src}
@@ -196,6 +248,7 @@ export function Player({
 				autoPlay={autoplay}
 				controls={controls}
 				onPlay={onPlay}
+				onVolumeChange={onVolumeChange}
 				onLoadedData={() => setIsLoaded(true)}
 				onPause={() => setIsPlaying(false)}
 				onEnded={() => setIsEnded(true)}
