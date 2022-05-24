@@ -1,63 +1,11 @@
-import { useRef, useState, useEffect } from "react";
 import "../../styles/player.scss";
+import { useRef, useState, useEffect } from "react";
+import { PlayerSrc } from "../../types/player";
 import { PlayerControls } from "../PlayerControls";
-
-function clamp(n: number, min: number, max: number) {
-	return Math.min(Math.max(n, min), max);
-}
-
-function play(player: HTMLVideoElement | null) {
-	player?.play();
-}
-
-function pause(player: HTMLVideoElement | null) {
-	player?.pause();
-}
-
-function enterFullscreen(wrapperEl: HTMLDivElement | null) {
-	wrapperEl?.requestFullscreen();
-}
-
-function formatProgress(player: HTMLVideoElement | null) {
-	if (!player) {
-		return undefined;
-	}
-	const percent = (player.currentTime / player.duration) * 100;
-	return `${percent}%`;
-}
-
-function exitFullscreen() {
-	document.exitFullscreen();
-}
-
-function toggleFullscreen(wrapperEl: HTMLDivElement | null) {
-	if (document.fullscreenElement) {
-		exitFullscreen();
-	} else {
-		enterFullscreen(wrapperEl);
-	}
-}
-
-function skip(player: HTMLVideoElement | null, seconds: number) {
-	if (!player) {
-		return;
-	}
-	player.currentTime += seconds;
-}
-
-function togglePlay(player: HTMLVideoElement | null) {
-	if (!player) {
-		return;
-	}
-	if (player.paused) {
-		player.play();
-	} else {
-		player.pause();
-	}
-}
+import * as helpers from "./helpers";
 
 export interface PlayerProps {
-	src?: string;
+	src: PlayerSrc;
 	controls?: boolean;
 	aspectRatio?: string;
 	track?: string;
@@ -81,6 +29,7 @@ export function Player({
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [activeSrc, setActiveSrc] = useState<keyof PlayerSrc>("default");
 	const [isMuted, setIsMuted] = useState(false);
 
 	useEffect(() => {
@@ -89,6 +38,10 @@ export function Player({
 		}
 		setIsPlaying(!videoEl.current.paused);
 	}, []);
+
+	function changeSrc(src: number) {
+		setActiveSrc(src);
+	}
 
 	function onTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
 		const element = e.target as HTMLVideoElement;
@@ -99,9 +52,8 @@ export function Player({
 		if (!videoEl.current || !timelineEl.current) {
 			return;
 		}
-		const rect = timelineEl.current.getBoundingClientRect();
-		const percent =
-			Math.min(Math.max(0, e.clientX - rect.x), rect.width) / rect.width;
+		const { x, width } = timelineEl.current.getBoundingClientRect();
+		const percent = Math.min(Math.max(0, e.clientX - x), width) / width;
 		const progress = videoEl.current.duration * percent;
 		videoEl.current.currentTime = progress;
 		setProgress(progress);
@@ -176,31 +128,23 @@ export function Player({
 				// toggleCaptions
 				break;
 			case "f":
-				toggleFullscreen(wrapperEl.current);
+				helpers.toggleFullscreen(wrapperEl.current);
 				break;
 			case " ":
 				e.preventDefault();
-				togglePlay(videoEl.current);
+				helpers.togglePlay(videoEl.current);
 				break;
 			case "ArrowRight":
-				skip(videoEl.current, 5);
+				helpers.skip(videoEl.current, 5);
 				break;
 			case "ArrowLeft":
-				skip(videoEl.current, -5);
+				helpers.skip(videoEl.current, -5);
 				break;
 			case "ArrowUp":
-				videoEl.current.volume = clamp(
-					videoEl.current.volume + 0.05,
-					0,
-					1
-				);
+				helpers.bumpVolume(videoEl.current, "up");
 				break;
 			case "ArrowDown":
-				videoEl.current.volume = clamp(
-					videoEl.current.volume - 0.05,
-					0,
-					1
-				);
+				helpers.bumpVolume(videoEl.current, "down");
 				break;
 			case "m":
 				// mute
@@ -224,14 +168,19 @@ export function Player({
 				isFullscreen={isFullscreen}
 				isPlaying={isPlaying}
 				isVideoLoaded={isLoaded}
-				onEnterFullscreen={() => enterFullscreen(wrapperEl.current)}
-				onExitFullscreen={exitFullscreen}
+				onEnterFullscreen={() =>
+					helpers.enterFullscreen(wrapperEl.current)
+				}
+				onExitFullscreen={helpers.exitFullscreen}
 				onToggleMute={() => setIsMuted(p => !p)}
-				onPause={() => pause(videoEl.current)}
-				onPlay={() => play(videoEl.current)}
+				onPause={() => helpers.pause(videoEl.current)}
+				onPlay={() => helpers.play(videoEl.current)}
 				onTimelineClick={onTimelineClick}
 				progress={progress}
-				progressPercent={formatProgress(videoEl.current)}
+				progressPercent={helpers.formatProgress(videoEl.current)}
+				src={src}
+				activeSrc={activeSrc}
+				changeSrc={changeSrc}
 			/>
 			<video
 				className="AngelinPlayer__video"
@@ -243,10 +192,10 @@ export function Player({
 				onLoadedData={() => setIsLoaded(true)}
 				onPause={() => setIsPlaying(false)}
 				onEnded={() => setIsEnded(true)}
-				onClick={() => togglePlay(videoEl.current)}
+				onClick={() => helpers.togglePlay(videoEl.current)}
 				onTimeUpdate={onTimeUpdate}
 			>
-				{src && <source src={src} />}
+				{src && <source src={src[activeSrc]} />}
 				{track && <track src={track} />}
 			</video>
 		</div>

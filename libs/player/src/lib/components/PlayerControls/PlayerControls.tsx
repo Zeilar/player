@@ -1,3 +1,4 @@
+import { PlayerSrc } from "../../types/player";
 import { IconButton } from "../IconButton";
 
 export interface PlayerControlsProps {
@@ -9,12 +10,15 @@ export interface PlayerControlsProps {
 	isFullscreen: boolean;
 	progressPercent: string | undefined;
 	progress: number;
+	activeSrc: keyof PlayerSrc;
+	src: PlayerSrc;
 	onTimelineClick(e: React.MouseEvent<HTMLDivElement>): void;
 	onPlay(): void;
 	onPause(): void;
 	onEnterFullscreen(): void;
 	onExitFullscreen(): void;
 	onToggleMute(): void;
+	changeSrc(src: number): void;
 	// onVolumeChange(): void
 }
 
@@ -33,6 +37,9 @@ export function PlayerControls({
 	onToggleMute,
 	onPause,
 	onPlay,
+	activeSrc,
+	changeSrc,
+	src,
 }: PlayerControlsProps) {
 	return (
 		<>

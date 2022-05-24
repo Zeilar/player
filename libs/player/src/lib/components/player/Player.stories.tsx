@@ -14,6 +14,6 @@ const Template: Story<PlayerProps> = args => (
 
 export const Primary = Template.bind({});
 Primary.args = {
-	src: "/video.mp4",
+	src: { default: "/video.mp4" },
 	track: "/subtitles.vtt",
 };
