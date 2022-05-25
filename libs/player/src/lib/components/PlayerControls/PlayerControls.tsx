@@ -27,6 +27,7 @@ export interface PlayerControlsProps {
 	onPause(): void;
 	onEnterFullscreen(): void;
 	onExitFullscreen(): void;
+	onVolumeChange(volume: number): void;
 	onUnmute(): void;
 	onMute(): void;
 	changeSrc(src: number): void;
@@ -49,12 +50,12 @@ export function PlayerControls({
 	onUnmute,
 	onPause,
 	onPlay,
+	onVolumeChange,
 	activeSrc,
 	changeSrc,
 	src,
 	volume,
 }: PlayerControlsProps) {
-	// console.log(getVolumeIcon(volume), volume);
 	return (
 		<>
 			<svg
@@ -103,6 +104,16 @@ export function PlayerControls({
 								onClick={onMute}
 							/>
 						)}
+						<input
+							className="AngelinPlayer__controls-volumeslider"
+							type="range"
+							defaultValue={volume * 100}
+							onChange={e =>
+								onVolumeChange(parseInt(e.target.value) / 100)
+							}
+							min={0}
+							max={100}
+						/>
 					</div>
 					<div>
 						{isFullscreen ? (

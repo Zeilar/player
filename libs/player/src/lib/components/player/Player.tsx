@@ -50,6 +50,14 @@ export function Player({
 		setVolume(e.currentTarget.volume);
 	}
 
+	function onVolumeInputChange(volume: number) {
+		if (!videoEl.current) {
+			return;
+		}
+		videoEl.current.volume = volume;
+		setIsMuted(false);
+	}
+
 	function onMute() {
 		if (!videoEl.current) {
 			return;
@@ -125,10 +133,10 @@ export function Player({
 
 	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
-			e.preventDefault();
 			if (!videoEl.current || !isScrubbing) {
 				return;
 			}
+			e.preventDefault();
 			updateTimeline(e);
 		}
 		function scrubHandler(e: MouseEvent) {
@@ -229,6 +237,7 @@ export function Player({
 				onExitFullscreen={helpers.exitFullscreen}
 				onMute={onMute}
 				onUnmute={onUnmute}
+				onVolumeChange={onVolumeInputChange}
 				onPause={() => helpers.pause(videoEl.current)}
 				onPlay={() => helpers.play(videoEl.current)}
 				onTimelineClick={onTimelineClick}
