@@ -113,6 +113,7 @@ export function PlayerControls({
 							}
 							min={0}
 							max={100}
+							style={{ backgroundSize: `${volume * 100}%` }}
 						/>
 					</div>
 					<div>

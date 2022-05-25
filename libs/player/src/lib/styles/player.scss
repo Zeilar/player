@@ -1,6 +1,7 @@
 .AngelinPlayer {
 	--color-primary: rgb(0, 160, 255);
 	--color-text: rgb(225, 225, 225);
+	--shadow-grabber: 0 0 3px 0 rgba(0, 0, 0, 0.25);
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -84,8 +85,8 @@
 .AngelinPlayer__icon {
 	transition: 0.15s;
 	fill: var(--icon-color);
-	width: 35px;
-	height: 35px;
+	width: 30px;
+	height: 30px;
 }
 
 .AngelinPlayer__button {
@@ -103,16 +104,15 @@
 }
 
 .AngelinPlayer__timeline {
-	--grabberShadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
 	padding: 0 5px;
 	height: 6px;
 	transition: 0.15s;
-	box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
 	.AngelinPlayer__timeline-track__progress::after {
-		box-shadow: var(--grabberShadow);
+		box-shadow: var(--shadow-grabber);
 	}
 	&:active .AngelinPlayer__timeline-track__progress::after {
-		box-shadow: var(--grabberShadow), 0 0 0 3px rgba(255, 255, 255, 0.25);
+		box-shadow: var(--shadow-grabber), 0 0 0 3px rgba(255, 255, 255, 0.25);
 	}
 }
 
@@ -160,9 +160,49 @@
 
 .AngelinPlayer__controls-buttons__group {
 	display: flex;
+	align-items: center;
+}
+
+@mixin range-thumb {
+	appearance: none;
+	transition: 0.15s;
+	box-shadow: var(--shadow-grabber);
+	background-color: var(--color-text);
+	border-radius: 100%;
+	width: 15px;
+	height: 15px;
+}
+
+@mixin range-thumb-active-shadow {
+	box-shadow: var(--shadow-grabber), 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 
 .AngelinPlayer__controls-volumeslider {
+	cursor: pointer;
 	appearance: none;
+	height: 6px;
 	background-color: rgba(255, 255, 255, 0.5);
+	background-image: linear-gradient(
+		var(--color-primary),
+		var(--color-primary)
+	);
+	background-repeat: no-repeat;
+	&:active::-moz-range-thumb {
+		@include range-thumb-active-shadow;
+	}
+	&:active::-webkit-slider-thumb {
+		@include range-thumb-active-shadow;
+	}
+	&:active::-ms-thumb {
+		@include range-thumb-active-shadow;
+	}
+	&::-moz-range-thumb {
+		@include range-thumb;
+	}
+	&::-webkit-slider-thumb {
+		@include range-thumb;
+	}
+	&::-ms-thumb {
+		@include range-thumb;
+	}
 }
