@@ -112,7 +112,7 @@ export function Player({
 			if (!wrapperEl.current || !controlsEl.current) {
 				return;
 			}
-			if (wrapperEl.current.contains(e.currentTarget as HTMLElement)) {
+			if (wrapperEl.current.contains(e.target as HTMLElement)) {
 				e.preventDefault();
 			}
 		}
