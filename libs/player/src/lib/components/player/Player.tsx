@@ -241,7 +241,7 @@ export function Player({
 				onPause={() => helpers.pause(videoEl.current)}
 				onPlay={() => helpers.play(videoEl.current)}
 				onTimelineClick={onTimelineClick}
-				volume={volume}
+				volume={isMuted ? prevVolume.current : volume}
 				progress={progress}
 				progressPercent={helpers.formatProgress(videoEl.current)}
 				src={src}
