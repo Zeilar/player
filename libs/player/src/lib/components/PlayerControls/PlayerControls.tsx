@@ -107,7 +107,7 @@ export function PlayerControls({
 						<input
 							className="AngelinPlayer__controls-volumeslider"
 							type="range"
-							defaultValue={volume * 100}
+							value={volume * 100}
 							onChange={e =>
 								onVolumeChange(parseInt(e.target.value) / 100)
 							}
