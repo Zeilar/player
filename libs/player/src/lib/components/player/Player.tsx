@@ -1,14 +1,14 @@
 import "../../styles/player.scss";
 import { useRef, useState, useEffect } from "react";
-import { PlayerSrc } from "../../types/player";
+import { PlayerCaptions, PlayerSrc } from "../../types/player";
 import { PlayerControls } from "../PlayerControls";
 import * as helpers from "./helpers";
 
 export interface PlayerProps {
 	src: PlayerSrc;
+	captions?: PlayerCaptions[];
 	controls?: boolean;
 	aspectRatio?: string;
-	track?: string;
 	autoplay?: boolean;
 }
 
@@ -16,10 +16,11 @@ export function Player({
 	aspectRatio,
 	src,
 	controls,
-	track,
+	captions = [],
 	autoplay,
 }: PlayerProps) {
 	const prevVolume = useRef<number>(0.5);
+	const prevCaptions = useRef<number | null>(null);
 	const wrapperEl = useRef<HTMLDivElement>(null);
 	const videoEl = useRef<HTMLVideoElement>(null);
 	const timelineEl = useRef<HTMLDivElement>(null);
@@ -31,6 +32,9 @@ export function Player({
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [activeSrc, setActiveSrc] = useState<keyof PlayerSrc>("default");
+	const [activeCaptionsIndex, setActiveCaptionsIndex] = useState<
+		number | null
+	>(null);
 	const [isMuted, setIsMuted] = useState(false);
 	const [volume, setVolume] = useState<number>(0.5);
 
@@ -90,6 +94,18 @@ export function Player({
 		setProgress(progress);
 	}
 
+	function onCaptionsToggle() {
+		setActiveCaptionsIndex(
+			typeof activeCaptionsIndex === "number"
+				? null
+				: prevCaptions.current ?? 0
+		);
+	}
+
+	function onCaptionsChange(index: number | null) {
+		setActiveCaptionsIndex(index);
+	}
+
 	function onTimelineClick(e: React.MouseEvent<HTMLDivElement>) {
 		if (e.buttons !== 1) {
 			return;
@@ -132,6 +148,20 @@ export function Player({
 	}, [isMuted]);
 
 	useEffect(() => {
+		if (!videoEl.current) {
+			return;
+		}
+		if (activeCaptionsIndex !== null) {
+			prevCaptions.current = activeCaptionsIndex;
+		}
+		const { textTracks } = videoEl.current;
+		for (let i = 0; i < textTracks.length; i++) {
+			textTracks[i].mode =
+				i === activeCaptionsIndex ? "showing" : "disabled";
+		}
+	}, [activeCaptionsIndex]);
+
+	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
 			if (!videoEl.current || !isScrubbing) {
 				return;
@@ -168,7 +198,7 @@ export function Player({
 				videoEl.current.currentTime = videoEl.current.duration;
 				break;
 			case "c":
-				// toggleCaptions
+				onCaptionsToggle();
 				break;
 			case "f":
 				helpers.toggleFullscreen(wrapperEl.current);
@@ -231,6 +261,8 @@ export function Player({
 				isPlaying={isPlaying}
 				isVideoLoaded={isLoaded}
 				isMuted={isMuted}
+				onCaptionsToggle={onCaptionsToggle}
+				onCaptionsChange={onCaptionsChange}
 				onEnterFullscreen={() =>
 					helpers.enterFullscreen(wrapperEl.current)
 				}
@@ -263,7 +295,14 @@ export function Player({
 				onTimeUpdate={onTimeUpdate}
 			>
 				{src && <source src={src[activeSrc]} />}
-				{track && <track src={track} />}
+				{captions.map((caption, i) => (
+					<track
+						key={i}
+						kind="captions"
+						srcLang={caption.language}
+						src={caption.src}
+					/>
+				))}
 			</video>
 		</div>
 	);

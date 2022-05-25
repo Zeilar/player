@@ -1,5 +1,5 @@
 import { Icon } from "../../types/icons";
-import { PlayerSrc } from "../../types/player";
+import { PlayerCaptions, PlayerSrc } from "../../types/player";
 import { IconButton } from "../IconButton";
 
 function getVolumeIcon(volume: number): Icon {
@@ -22,6 +22,9 @@ export interface PlayerControlsProps {
 	activeSrc: keyof PlayerSrc;
 	src: PlayerSrc;
 	volume: number;
+	captions?: PlayerCaptions[];
+	onCaptionsToggle(): void;
+	onCaptionsChange(index: number | null): void;
 	onTimelineClick(e: React.MouseEvent<HTMLDivElement>): void;
 	onPlay(): void;
 	onPause(): void;
@@ -41,11 +44,13 @@ export function PlayerControls({
 	isFullscreen,
 	isVideoLoaded,
 	onTimelineClick,
+	captions = [],
 	progress,
 	progressPercent,
 	timelineEl,
 	onEnterFullscreen,
 	onExitFullscreen,
+	onCaptionsChange,
 	onMute,
 	onUnmute,
 	onPause,
@@ -117,6 +122,7 @@ export function PlayerControls({
 						/>
 					</div>
 					<div>
+						{}
 						{isFullscreen ? (
 							<IconButton
 								onClick={onExitFullscreen}

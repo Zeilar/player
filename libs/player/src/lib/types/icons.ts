@@ -6,7 +6,8 @@ export type Icon =
 	| "Replay"
 	| "VolumeDown"
 	| "VolumeUp"
-	| "VolumeOff";
+	| "VolumeOff"
+	| "Subtitles";
 
 export type IconComponent = React.FunctionComponent<
 	React.SVGProps<SVGSVGElement> & {
