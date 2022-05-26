@@ -3,7 +3,7 @@ import { PlayerControls } from ".";
 
 describe("Player", () => {
 	it("should render successfully", () => {
-		const { baseElement } = render(<PlayerControls player={null} />);
+		const { baseElement } = render(<PlayerControls />);
 		expect(baseElement).toBeTruthy();
 	});
 });

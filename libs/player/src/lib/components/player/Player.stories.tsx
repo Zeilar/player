@@ -7,13 +7,19 @@ export default {
 } as Meta;
 
 const Template: Story<PlayerProps> = args => (
-	<div style={{ maxWidth: 1000 }}>
+	<div style={{ width: 1000 }}>
 		<Player {...args} />
 	</div>
 );
 
 export const Primary = Template.bind({});
 Primary.args = {
-	src: { default: "/video.mp4", 480: "/480p.mp4" },
+	src: {
+		1080: "/1080.mp4",
+		720: "/720.mp4",
+		640: "/640.mp4",
+		480: "/480.mp4",
+		default: "/subtitles.mp4",
+	},
 	captions: [{ language: "en", src: "/subtitles.vtt", label: "English" }],
 };

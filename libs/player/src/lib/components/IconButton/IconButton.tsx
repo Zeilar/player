@@ -9,6 +9,7 @@ import { ReactComponent as VolumeDown } from "../../assets/svgs/volume-down.svg"
 import { ReactComponent as VolumeUp } from "../../assets/svgs/volume-up.svg";
 import { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
 import { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
+import { ReactComponent as HD } from "../../assets/svgs/hd.svg";
 
 const icons: Record<Icon, IconComponent> = {
 	FullscreenExit,
@@ -20,6 +21,7 @@ const icons: Record<Icon, IconComponent> = {
 	VolumeUp,
 	VolumeOff,
 	Subtitles,
+	HD,
 };
 
 export interface IconButtonProps
