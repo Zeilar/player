@@ -1,5 +1,5 @@
 import "../../styles/player.scss";
-import type { Icon, IconComponent, MenuItem } from "../../types/icons";
+import { Icon, IconComponent, MenuItem, MenuPosition } from "../../types/icons";
 import { ReactComponent as FullscreenExit } from "../../assets/svgs/fullscreen-exit.svg";
 import { ReactComponent as FullscreenOpen } from "../../assets/svgs/fullscreen-open.svg";
 import { ReactComponent as Pause } from "../../assets/svgs/pause.svg";
@@ -11,7 +11,7 @@ import { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
 import { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
 import { ReactComponent as HD } from "../../assets/svgs/hd.svg";
 import { ReactComponent as Close } from "../../assets/svgs/close.svg";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOnClickOutside } from "use-ful-hooks-ts";
 
 const icons: Record<Icon, IconComponent> = {
@@ -48,8 +48,32 @@ export function IconButton({
 	const menuWrapper = useOnClickOutside<HTMLDivElement>(() =>
 		setIsOpen(false)
 	);
+	const [menuPosition, setMenuPosition] = useState<MenuPosition>("right");
 
 	const Icon = icons[icon];
+
+	const calculateMenuPosition = useCallback(() => {
+		if (!menuWrapper.current) {
+			return;
+		}
+		const playerEl = menuWrapper.current.closest("[data-player]");
+		const menuListEl =
+			menuWrapper.current.querySelector("[data-menu-list]");
+		if (!playerEl || !menuListEl) {
+			return;
+		}
+		const menuListElRect = menuListEl.getBoundingClientRect();
+		const playerElRect = playerEl.getBoundingClientRect();
+		setMenuPosition(
+			menuListElRect.x + menuListElRect.width + 5 > playerElRect.width
+				? "left"
+				: "right"
+		);
+	}, [menuWrapper]);
+
+	useEffect(() => {
+		calculateMenuPosition();
+	}, [calculateMenuPosition, isOpen]);
 
 	if (!Icon) {
 		console.warn(`Icon ${icon} not found.`);
@@ -76,8 +100,16 @@ export function IconButton({
 
 	return (
 		<div className="AngelinPlayer__menu" ref={menuWrapper}>
-			{menuItems.length > 0 && isOpen && (
-				<ul className="AngelinPlayer__menu-list">
+			{menuItems.length > 0 && (
+				<ul
+					className="AngelinPlayer__menu-list"
+					data-menu-list
+					data-open={isOpen}
+					style={{
+						left: menuPosition === "right" ? 0 : "unset",
+						right: menuPosition === "left" ? 0 : "unset",
+					}}
+				>
 					<li className="AngelinPlayer__menu-list__item AngelinPlayer__menu-list__item-close">
 						{menuTitle}
 						<button

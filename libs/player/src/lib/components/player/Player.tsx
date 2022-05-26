@@ -275,6 +275,7 @@ export function Player({
 	return (
 		<div
 			className="AngelinPlayer"
+			data-player
 			data-paused={videoEl.current?.paused === true}
 			ref={wrapperEl}
 			tabIndex={1}

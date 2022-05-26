@@ -22,3 +22,5 @@ export interface MenuItem {
 	active: boolean;
 	onClick(): void;
 }
+
+export type MenuPosition = "left" | "right";
