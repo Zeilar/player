@@ -1,3 +1,7 @@
+export const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
+	minimumIntegerDigits: 2,
+});
+
 export function clamp(n: number, min: number, max: number) {
 	return Math.min(Math.max(n, min), max);
 }
@@ -14,12 +18,23 @@ export function enterFullscreen(wrapperEl: HTMLDivElement | null) {
 	wrapperEl?.requestFullscreen();
 }
 
-export function formatProgress(player: HTMLVideoElement | null) {
+export function formatProgressPercent(player: HTMLVideoElement | null) {
 	if (!player) {
 		return undefined;
 	}
 	const percent = (player.currentTime / player.duration) * 100;
 	return `${percent}%`;
+}
+
+export function formatProgress(progress: number) {
+	const seconds = Math.floor(progress % 60);
+	const minutes = Math.floor((progress / 60) % 60);
+	const hours = Math.floor(progress / 3600);
+	return hours === 0
+		? `${minutes}:${leadingZeroFormatter.format(seconds)}`
+		: `${hours}:${leadingZeroFormatter.format(
+				minutes
+		  )}:${leadingZeroFormatter.format(seconds)}`;
 }
 
 export function exitFullscreen() {

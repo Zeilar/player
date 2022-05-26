@@ -1,6 +1,7 @@
 import { Icon, MenuItem } from "../../types/icons";
 import { PlayerCaptions, PlayerSrc } from "../../types/player";
 import { IconButton } from "../IconButton";
+import { formatProgress } from "../Player/helpers";
 
 function getVolumeIcon(volume: number): Icon {
 	if (volume === 0) {
@@ -17,6 +18,7 @@ export interface PlayerControlsProps {
 	isMuted: boolean;
 	isVideoLoaded: boolean;
 	isFullscreen: boolean;
+	duration: number | null;
 	progressPercent: string | undefined;
 	progress: number;
 	activeCaptionsIndex: number | null;
@@ -46,6 +48,7 @@ export function PlayerControls({
 	isVideoLoaded,
 	onTimelineClick,
 	captions = [],
+	duration,
 	progress,
 	progressPercent,
 	timelineEl,
@@ -135,6 +138,12 @@ export function PlayerControls({
 							max={100}
 							style={{ backgroundSize: `${volume * 100}%` }}
 						/>
+						{typeof duration === "number" && (
+							<span className="AngelinPlayer__controls-progress">
+								{formatProgress(progress)} /{" "}
+								{formatProgress(duration)}
+							</span>
+						)}
 					</div>
 					<div className="AngelinPlayer__controls-buttons__group">
 						<IconButton

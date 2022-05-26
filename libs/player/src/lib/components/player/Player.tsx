@@ -26,6 +26,7 @@ export function Player({
 	const videoEl = useRef<HTMLVideoElement>(null);
 	const timelineEl = useRef<HTMLDivElement>(null);
 	const controlsEl = useRef<HTMLDivElement>(null);
+	const [duration, setDuration] = useState<number | null>(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -130,6 +131,11 @@ export function Player({
 		const indexOfActive = srcs.indexOf(activeSrc);
 		const active = srcs.splice(indexOfActive, 1);
 		return [...active, ...srcs];
+	}
+
+	function onLoadedData(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
+		setIsLoaded(true);
+		setDuration(e.currentTarget.duration);
 	}
 
 	useEffect(() => {
@@ -302,9 +308,10 @@ export function Player({
 				onPlay={() => helpers.play(videoEl.current)}
 				onTimelineClick={onTimelineClick}
 				volume={isMuted ? prevVolume.current : volume}
-				progress={progress}
 				captions={captions}
-				progressPercent={helpers.formatProgress(videoEl.current)}
+				duration={duration}
+				progress={progress}
+				progressPercent={helpers.formatProgressPercent(videoEl.current)}
 				src={src}
 				activeCaptionsIndex={activeCaptionsIndex}
 				activeSrc={activeSrc}
@@ -317,9 +324,8 @@ export function Player({
 				autoPlay={autoplay}
 				controls={controls}
 				onPlay={onPlay}
-				onLoad={() => console.log("loaded")}
 				onVolumeChange={onVolumeChange}
-				onLoadedData={() => setIsLoaded(true)}
+				onLoadedData={onLoadedData}
 				onPause={() => setIsPlaying(false)}
 				onEnded={() => setIsEnded(true)}
 				onClick={() => helpers.togglePlay(videoEl.current)}
