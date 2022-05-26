@@ -2,6 +2,7 @@
 	--color-primary: rgb(0, 160, 255);
 	--color-text: rgb(225, 225, 225);
 	--shadow-grabber: 0 0 3px 0 rgba(0, 0, 0, 0.25);
+	--icon-size: 30px;
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -9,6 +10,7 @@
 	cursor: pointer;
 	max-width: 100%;
 	color: var(--color-text);
+	font-family: Fira Sans, sans-serif;
 	&::before {
 		content: "";
 		opacity: 0;
@@ -37,7 +39,17 @@
 	*,
 	*::before,
 	*::after {
+		margin: 0;
+		padding: 0;
 		box-sizing: border-box;
+		list-style-type: none;
+	}
+	button {
+		font-family: inherit;
+		color: var(--color-text);
+		cursor: pointer;
+		background: none;
+		border: none;
 	}
 }
 
@@ -51,69 +63,70 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	padding: 5px 10px;
 }
 
 .AngelinPlayer__controls {
 	display: flex;
 	flex-direction: column;
 	cursor: default;
-	padding: 10px;
-	gap: 10px;
+	// gap: 10px;
 	position: absolute;
 	bottom: 0;
 	opacity: 0;
 	z-index: 100;
 	width: 100%;
 	transition: 0.15s;
-	&::before {
-		content: "";
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: -1;
-		background-image: linear-gradient(
-			0deg,
-			rgba(0, 0, 0, 0.8) 0,
-			rgba(0, 0, 0, 0.35) 75%,
-			transparent
-		);
-	}
+	background-color: rgba(0, 0, 0, 0.75);
 }
 
 .AngelinPlayer__icon {
 	transition: 0.15s;
 	fill: var(--icon-color);
-	width: 30px;
-	height: 30px;
+	width: var(--icon-size);
+	height: var(--icon-size);
 }
 
 .AngelinPlayer__button {
 	--icon-color: var(--color-text);
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	padding: 5px;
-	background: none;
-	border: none;
-	cursor: pointer;
-	&:hover {
+	&:hover,
+	&[data-active="true"] {
 		--icon-color: var(--color-primary);
+	}
+	&[data-active="true"]::after {
+		display: block;
+	}
+	&::after {
+		content: "";
+		position: absolute;
+		display: none;
+		background-color: var(--color-primary);
+		bottom: 3px;
+		height: 2px;
+		width: var(--icon-size);
+		border-radius: 100px;
 	}
 }
 
+.AngelinPlayer__button-menu {
+	display: none;
+}
+
 .AngelinPlayer__timeline {
-	padding: 0 5px;
 	height: 6px;
 	transition: 0.15s;
 	box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
-	.AngelinPlayer__timeline-track__progress::after {
-		box-shadow: var(--shadow-grabber);
-	}
-	&:active .AngelinPlayer__timeline-track__progress::after {
-		box-shadow: var(--shadow-grabber), 0 0 0 3px rgba(255, 255, 255, 0.25);
-	}
+	// .AngelinPlayer__timeline-track__progress::after {
+	// 	box-shadow: var(--shadow-grabber);
+	// }
+	// &:active .AngelinPlayer__timeline-track__progress::after {
+	// 	box-shadow: var(--shadow-grabber), 0 0 0 3px rgba(255, 255, 255, 0.25);
+	// }
 }
 
 .AngelinPlayer__timeline-track {
@@ -127,17 +140,6 @@
 	background-color: var(--color-primary);
 	position: relative;
 	height: 100%;
-	&::after {
-		background-color: var(--color-text);
-		content: "";
-		border-radius: 100%;
-		width: 15px;
-		height: 15px;
-		right: -15px;
-		top: 50%;
-		position: absolute;
-		transform: translate(-50%, -50%);
-	}
 }
 
 .AngelinPlayer__big-resume-icon {
@@ -204,5 +206,49 @@
 	}
 	&::-ms-thumb {
 		@include range-thumb;
+	}
+}
+
+.AngelinPlayer__menu {
+	position: relative;
+	&:hover .AngelinPlayer__menu-list {
+		display: block;
+	}
+}
+
+.AngelinPlayer__menu-list {
+	position: absolute;
+	background-color: rgba(0, 0, 0, 0.75);
+	border-radius: 5px;
+	display: none;
+	bottom: 40px;
+	right: 0;
+	text-align: center;
+}
+
+.AngelinPlayer__menu-list__item {
+	position: relative;
+	&[data-active="true"] {
+		&::after {
+			content: "";
+			transform: translateY(-50%);
+			position: absolute;
+			top: 50%;
+			left: 0;
+			width: 2px;
+			height: 50%;
+			background-color: var(--color-primary);
+		}
+		.AngelinPlayer__menu-list__item-button {
+			color: var(--color-primary);
+		}
+	}
+}
+
+.AngelinPlayer__menu-list__item-button {
+	font-weight: 600;
+	padding: 10px 15px;
+	&:hover {
+		color: var(--color-primary);
 	}
 }

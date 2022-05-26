@@ -14,3 +14,9 @@ export type IconComponent = React.FunctionComponent<
 		title?: string | undefined;
 	}
 >;
+
+export interface MenuItem {
+	label: string;
+	active: boolean;
+	onClick(): void;
+}

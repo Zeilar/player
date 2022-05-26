@@ -1,3 +1,4 @@
+import "@fontsource/fira-sans";
 import "../../styles/player.scss";
 import { useRef, useState, useEffect } from "react";
 import { PlayerCaptions, PlayerSrc } from "../../types/player";
@@ -45,8 +46,12 @@ export function Player({
 		setIsPlaying(!videoEl.current.paused);
 	}, []);
 
-	function changeSrc(src: number) {
+	function changeSrc(src: keyof PlayerSrc) {
 		setActiveSrc(src);
+		if (src !== activeSrc) {
+			setIsPlaying(false);
+			setIsLoaded(false);
+		}
 	}
 
 	function onVolumeChange(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
@@ -120,6 +125,13 @@ export function Player({
 		setIsPlaying(true);
 	}
 
+	function orderSources() {
+		const srcs = Object.keys(src) as (keyof PlayerSrc)[];
+		const indexOfActive = srcs.indexOf(activeSrc);
+		const active = srcs.splice(indexOfActive, 1);
+		return [...active, ...srcs];
+	}
+
 	useEffect(() => {
 		function fullscreenHandler() {
 			setIsFullscreen(Boolean(document.fullscreenElement));
@@ -160,6 +172,22 @@ export function Player({
 				i === activeCaptionsIndex ? "showing" : "disabled";
 		}
 	}, [activeCaptionsIndex]);
+
+	useEffect(() => {
+		if (!videoEl.current) {
+			return;
+		}
+		const source = videoEl.current.querySelector(
+			'source[data-active="true"]'
+		);
+		if (!source) {
+			return;
+		}
+		const { currentTime } = videoEl.current;
+		videoEl.current.load();
+		videoEl.current.currentTime = currentTime;
+		setProgress(currentTime);
+	}, [activeSrc]);
 
 	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
@@ -275,8 +303,10 @@ export function Player({
 				onTimelineClick={onTimelineClick}
 				volume={isMuted ? prevVolume.current : volume}
 				progress={progress}
+				captions={captions}
 				progressPercent={helpers.formatProgress(videoEl.current)}
 				src={src}
+				activeCaptionsIndex={activeCaptionsIndex}
 				activeSrc={activeSrc}
 				changeSrc={changeSrc}
 			/>
@@ -287,6 +317,7 @@ export function Player({
 				autoPlay={autoplay}
 				controls={controls}
 				onPlay={onPlay}
+				onLoad={() => console.log("loaded")}
 				onVolumeChange={onVolumeChange}
 				onLoadedData={() => setIsLoaded(true)}
 				onPause={() => setIsPlaying(false)}
@@ -294,7 +325,14 @@ export function Player({
 				onClick={() => helpers.togglePlay(videoEl.current)}
 				onTimeUpdate={onTimeUpdate}
 			>
-				{src && <source src={src[activeSrc]} />}
+				{orderSources().map((key, i) => (
+					<source
+						key={i}
+						src={src[key]}
+						data-label={key}
+						data-active={key === activeSrc}
+					/>
+				))}
 				{captions.map((caption, i) => (
 					<track
 						key={i}

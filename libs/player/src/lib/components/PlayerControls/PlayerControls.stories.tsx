@@ -11,6 +11,4 @@ const Template: Story<PlayerControlsProps> = args => (
 );
 
 export const Primary = Template.bind({});
-Primary.args = {
-	player: null,
-};
+Primary.args = {};

@@ -14,6 +14,6 @@ const Template: Story<PlayerProps> = args => (
 
 export const Primary = Template.bind({});
 Primary.args = {
-	src: { default: "/video.mp4" },
-	captions: [{ language: "en", src: "/subtitles.vtt" }],
+	src: { default: "/video.mp4", 480: "/480p.mp4" },
+	captions: [{ language: "en", src: "/subtitles.vtt", label: "English" }],
 };

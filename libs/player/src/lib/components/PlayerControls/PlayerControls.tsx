@@ -1,4 +1,4 @@
-import { Icon } from "../../types/icons";
+import { Icon, MenuItem } from "../../types/icons";
 import { PlayerCaptions, PlayerSrc } from "../../types/player";
 import { IconButton } from "../IconButton";
 
@@ -19,6 +19,7 @@ export interface PlayerControlsProps {
 	isFullscreen: boolean;
 	progressPercent: string | undefined;
 	progress: number;
+	activeCaptionsIndex: number | null;
 	activeSrc: keyof PlayerSrc;
 	src: PlayerSrc;
 	volume: number;
@@ -33,7 +34,7 @@ export interface PlayerControlsProps {
 	onVolumeChange(volume: number): void;
 	onUnmute(): void;
 	onMute(): void;
-	changeSrc(src: number): void;
+	changeSrc(src: keyof PlayerSrc): void;
 }
 
 export function PlayerControls({
@@ -51,16 +52,30 @@ export function PlayerControls({
 	onEnterFullscreen,
 	onExitFullscreen,
 	onCaptionsChange,
+	onCaptionsToggle,
 	onMute,
 	onUnmute,
 	onPause,
 	onPlay,
 	onVolumeChange,
+	activeCaptionsIndex,
 	activeSrc,
 	changeSrc,
 	src,
 	volume,
 }: PlayerControlsProps) {
+	const captionsMenu: MenuItem[] = [
+		...captions.map((caption, i) => ({
+			label: caption.label,
+			onClick: () => onCaptionsChange(i),
+			active: activeCaptionsIndex === i,
+		})),
+		{
+			label: "Disabled",
+			onClick: () => onCaptionsChange(null),
+			active: activeCaptionsIndex === null,
+		},
+	];
 	return (
 		<>
 			<svg
@@ -121,8 +136,13 @@ export function PlayerControls({
 							style={{ backgroundSize: `${volume * 100}%` }}
 						/>
 					</div>
-					<div>
-						{}
+					<div className="AngelinPlayer__controls-buttons__group">
+						<IconButton
+							icon="Subtitles"
+							onClick={onCaptionsToggle}
+							data-active={activeCaptionsIndex !== null}
+							menuItems={captionsMenu}
+						/>
 						{isFullscreen ? (
 							<IconButton
 								onClick={onExitFullscreen}

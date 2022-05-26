@@ -1,5 +1,5 @@
 import "../../styles/player.scss";
-import type { Icon, IconComponent } from "../../types/icons";
+import type { Icon, IconComponent, MenuItem } from "../../types/icons";
 import { ReactComponent as FullscreenExit } from "../../assets/svgs/fullscreen-exit.svg";
 import { ReactComponent as FullscreenOpen } from "../../assets/svgs/fullscreen-open.svg";
 import { ReactComponent as Pause } from "../../assets/svgs/pause.svg";
@@ -26,17 +26,50 @@ export interface IconButtonProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	icon: Icon;
 	svgProps?: React.SVGAttributes<SVGElement>;
+	menuItems?: MenuItem[];
 }
 
-export function IconButton({ icon, svgProps, ...props }: IconButtonProps) {
+export function IconButton({
+	icon,
+	svgProps,
+	menuItems = [],
+	...props
+}: IconButtonProps) {
 	const Icon = icons[icon];
 	if (!Icon) {
 		console.warn(`Icon ${icon} not found.`);
 		return null;
 	}
+	if (menuItems.length === 0) {
+		return (
+			<button className="AngelinPlayer__button" {...props}>
+				<Icon {...svgProps} />
+			</button>
+		);
+	}
 	return (
-		<button className="AngelinPlayer__button" {...props}>
-			<Icon {...svgProps} />
-		</button>
+		<div className="AngelinPlayer__menu">
+			{menuItems.length > 0 && (
+				<ul className="AngelinPlayer__menu-list">
+					{menuItems.map((item, i) => (
+						<li
+							key={i}
+							className="AngelinPlayer__menu-list__item"
+							data-active={item.active}
+						>
+							<button
+								className="AngelinPlayer__menu-list__item-button"
+								onClick={item.onClick}
+							>
+								{item.label}
+							</button>
+						</li>
+					))}
+				</ul>
+			)}
+			<button className="AngelinPlayer__button" {...props}>
+				<Icon {...svgProps} />
+			</button>
+		</div>
 	);
 }
