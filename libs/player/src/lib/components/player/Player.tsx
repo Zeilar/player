@@ -32,7 +32,7 @@ export function Player({
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
-	const [activeSrc, setActiveSrc] = useState<keyof PlayerSrc>("default");
+	const [activeSrc, setActiveSrc] = useState<keyof PlayerSrc>("Default");
 	const [activeCaptionsIndex, setActiveCaptionsIndex] = useState<
 		number | null
 	>(null);

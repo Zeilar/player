@@ -10,6 +10,7 @@ import { ReactComponent as VolumeUp } from "../../assets/svgs/volume-up.svg";
 import { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
 import { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
 import { ReactComponent as HD } from "../../assets/svgs/hd.svg";
+import { ReactComponent as Close } from "../../assets/svgs/close.svg";
 import { useState } from "react";
 import { useOnClickOutside } from "use-ful-hooks-ts";
 
@@ -24,6 +25,7 @@ const icons: Record<Icon, IconComponent> = {
 	VolumeOff,
 	Subtitles,
 	HD,
+	Close,
 };
 
 export interface IconButtonProps
@@ -31,12 +33,14 @@ export interface IconButtonProps
 	icon: Icon;
 	svgProps?: React.SVGAttributes<SVGElement>;
 	menuItems?: MenuItem[];
+	menuTitle?: string;
 }
 
 export function IconButton({
 	icon,
 	svgProps,
 	menuItems = [],
+	menuTitle,
 	...props
 }: IconButtonProps) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +78,16 @@ export function IconButton({
 		<div className="AngelinPlayer__menu" ref={menuWrapper}>
 			{menuItems.length > 0 && isOpen && (
 				<ul className="AngelinPlayer__menu-list">
+					<li className="AngelinPlayer__menu-list__item AngelinPlayer__menu-list__item-close">
+						{menuTitle}
+						<button
+							className="AngelinPlayer__menu-list__item-close__button"
+							onClick={() => setIsOpen(false)}
+						>
+							<Close className="AngelinPlayer__menu-list__item-close__button-icon" />
+						</button>
+					</li>
+					<hr className="AngelinPlayer__menu-list__divider" />
 					{menuItems.map((item, i) => (
 						<li
 							key={i}

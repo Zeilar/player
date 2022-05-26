@@ -137,7 +137,11 @@ export function PlayerControls({
 						/>
 					</div>
 					<div className="AngelinPlayer__controls-buttons__group">
-						<IconButton icon="Subtitles" menuItems={captionsMenu} />
+						<IconButton
+							icon="Subtitles"
+							menuItems={captionsMenu}
+							menuTitle="Captions"
+						/>
 						<IconButton
 							icon="HD"
 							menuItems={Object.keys(src).map(src => ({
@@ -145,6 +149,7 @@ export function PlayerControls({
 								onClick: () => changeSrc(src),
 								active: src === activeSrc,
 							}))}
+							menuTitle="Quality"
 						/>
 						{isFullscreen ? (
 							<IconButton

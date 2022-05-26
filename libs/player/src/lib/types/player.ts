@@ -1,5 +1,5 @@
 export interface PlayerSrc {
-	default: string;
+	Default: string;
 	[key: string]: string;
 }
 

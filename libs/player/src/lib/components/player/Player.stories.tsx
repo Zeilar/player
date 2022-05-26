@@ -19,7 +19,7 @@ Primary.args = {
 		720: "/720.mp4",
 		640: "/640.mp4",
 		480: "/480.mp4",
-		default: "/subtitles.mp4",
+		Default: "/subtitles.mp4",
 	},
 	captions: [{ language: "en", src: "/subtitles.vtt", label: "English" }],
 };
