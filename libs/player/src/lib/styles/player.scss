@@ -12,6 +12,7 @@
 	max-width: 100%;
 	color: var(--color-text);
 	font-family: var(--font-family);
+	font-size: 85%;
 	&::before {
 		content: "";
 		opacity: 0;
@@ -51,7 +52,7 @@
 		cursor: pointer;
 		background: none;
 		border: none;
-		font-size: 1rem;
+		font-size: 1em;
 	}
 }
 
@@ -235,7 +236,7 @@
 }
 
 .AngelinPlayer__menu-list__item {
-	min-width: 100px;
+	min-width: 150px;
 	max-width: 100%;
 	border-radius: 5px;
 	user-select: none;
@@ -273,7 +274,15 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-left: 8px;
+	margin-left: 16px;
+	border-radius: 5px;
+	padding: 5px;
+	&:hover {
+		background-color: rgb(50, 50, 50);
+	}
+	&:active {
+		background-color: rgb(45, 45, 45);
+	}
 }
 
 .AngelinPlayer__menu-list__item-close__button-icon {
@@ -283,7 +292,7 @@
 }
 
 .AngelinPlayer__menu-list__divider {
-	margin: 5px 0;
+	margin: 8px;
 	height: 1px;
 	border: none;
 	background-color: rgb(75, 75, 75);
