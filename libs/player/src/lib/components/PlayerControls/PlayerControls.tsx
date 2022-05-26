@@ -140,8 +140,6 @@ export function PlayerControls({
 						<IconButton icon="Subtitles" menuItems={captionsMenu} />
 						<IconButton
 							icon="HD"
-							onClick={onCaptionsToggle}
-							data-active={activeCaptionsIndex !== null}
 							menuItems={Object.keys(src).map(src => ({
 								label: src,
 								onClick: () => changeSrc(src),

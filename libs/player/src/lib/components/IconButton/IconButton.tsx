@@ -10,6 +10,8 @@ import { ReactComponent as VolumeUp } from "../../assets/svgs/volume-up.svg";
 import { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
 import { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
 import { ReactComponent as HD } from "../../assets/svgs/hd.svg";
+import { useState } from "react";
+import { useOnClickOutside } from "use-ful-hooks-ts";
 
 const icons: Record<Icon, IconComponent> = {
 	FullscreenExit,
@@ -37,21 +39,40 @@ export function IconButton({
 	menuItems = [],
 	...props
 }: IconButtonProps) {
+	const [isOpen, setIsOpen] = useState(false);
+	const [isActive, setIsActive] = useState(false);
+	const menuWrapper = useOnClickOutside<HTMLDivElement>(() =>
+		setIsOpen(false)
+	);
+
 	const Icon = icons[icon];
+
 	if (!Icon) {
 		console.warn(`Icon ${icon} not found.`);
 		return null;
 	}
+
 	if (menuItems.length === 0) {
 		return (
-			<button className="AngelinPlayer__button" {...props}>
+			<button
+				className="AngelinPlayer__button"
+				onClick={() => setIsActive(p => !p)}
+				data-active={isActive}
+				{...props}
+			>
 				<Icon {...svgProps} />
 			</button>
 		);
 	}
+
+	function menuItemOnClick(callback: () => void) {
+		callback();
+		setIsOpen(false);
+	}
+
 	return (
-		<div className="AngelinPlayer__menu">
-			{menuItems.length > 0 && (
+		<div className="AngelinPlayer__menu" ref={menuWrapper}>
+			{menuItems.length > 0 && isOpen && (
 				<ul className="AngelinPlayer__menu-list">
 					{menuItems.map((item, i) => (
 						<li
@@ -61,7 +82,7 @@ export function IconButton({
 						>
 							<button
 								className="AngelinPlayer__menu-list__item-button"
-								onClick={item.onClick}
+								onClick={() => menuItemOnClick(item.onClick)}
 							>
 								{item.label}
 							</button>
@@ -69,7 +90,12 @@ export function IconButton({
 					))}
 				</ul>
 			)}
-			<button className="AngelinPlayer__button" {...props}>
+			<button
+				className="AngelinPlayer__button"
+				data-test="HELLO"
+				onClick={() => setIsOpen(true)}
+				{...props}
+			>
 				<Icon {...svgProps} />
 			</button>
 		</div>
