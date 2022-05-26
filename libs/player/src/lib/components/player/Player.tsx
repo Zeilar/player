@@ -186,7 +186,6 @@ export function Player({
 		const { currentTime } = videoEl.current;
 		videoEl.current.load();
 		videoEl.current.currentTime = currentTime;
-		setProgress(currentTime);
 	}, [activeSrc]);
 
 	useEffect(() => {
