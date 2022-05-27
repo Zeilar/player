@@ -1,8 +1,6 @@
-import { useMemo } from "react";
 import { Icon, MenuItem } from "../../types/icons";
 import { PlayerCaptions, PlayerQuality } from "../../types/player";
 import { IconButton } from "../IconButton";
-import { formatProgress } from "../Player/helpers";
 
 function getVolumeIcon(volume: number): Icon {
 	if (volume === 0) {

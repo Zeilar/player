@@ -113,7 +113,7 @@ export function Player({
 			const width = progress >= 60 * 60 ? 50 : 40;
 			const left = helpers.clamp(
 				videoElRect.width * percent - width / 2,
-				videoElRect.x + 5,
+				videoElRect.x - 10,
 				videoElRect.width - width - 10
 			);
 			setScrubberTooltipCss({
