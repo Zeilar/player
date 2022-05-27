@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Icon, MenuItem } from "../../types/icons";
 import { PlayerCaptions, PlayerQuality } from "../../types/player";
 import { IconButton } from "../IconButton";
@@ -18,7 +19,7 @@ export interface PlayerControlsProps {
 	isMuted: boolean;
 	isVideoLoaded: boolean;
 	isFullscreen: boolean;
-	duration: number | null;
+	duration: number;
 	progressPercent: string | undefined;
 	progress: number;
 	activeCaptionsIndex: number | null;
@@ -78,6 +79,14 @@ export function PlayerControls({
 			active: activeCaptionsIndex === null,
 		},
 	];
+	const formattedProgress = useMemo(
+		() => formatProgress(progress),
+		[progress]
+	);
+	const formattedDuration = useMemo(
+		() => (duration ? formatProgress(duration) : null),
+		[duration]
+	);
 	return (
 		<>
 			<svg
@@ -137,12 +146,9 @@ export function PlayerControls({
 							max={100}
 							style={{ backgroundSize: `${volume * 100}%` }}
 						/>
-						{typeof duration === "number" && (
-							<span className="AngelinPlayer__controls-progress">
-								{formatProgress(progress)} /{" "}
-								{formatProgress(duration)}
-							</span>
-						)}
+						<span className="AngelinPlayer__controls-progress">
+							{`${formattedProgress} / ${formattedDuration}`}
+						</span>
 					</div>
 					<div className="AngelinPlayer__controls-buttons__group">
 						<IconButton

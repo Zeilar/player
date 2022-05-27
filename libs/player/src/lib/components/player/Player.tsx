@@ -26,7 +26,7 @@ export function Player({
 	const videoEl = useRef<HTMLVideoElement>(null);
 	const timelineEl = useRef<HTMLDivElement>(null);
 	const controlsEl = useRef<HTMLDivElement>(null);
-	const [duration, setDuration] = useState<number | null>(null);
+	const [duration, setDuration] = useState<number>(0);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
