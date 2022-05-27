@@ -11,6 +11,7 @@ import { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
 import { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
 import { ReactComponent as HD } from "../../assets/svgs/hd.svg";
 import { ReactComponent as Close } from "../../assets/svgs/close.svg";
+import { ReactComponent as Check } from "../../assets/svgs/check.svg";
 import { useCallback, useEffect, useState } from "react";
 import { useOnClickOutside } from "use-ful-hooks-ts";
 
@@ -26,6 +27,7 @@ const icons: Record<Icon, IconComponent> = {
 	Subtitles,
 	HD,
 	Close,
+	Check,
 };
 
 export interface IconButtonProps
@@ -131,6 +133,9 @@ export function IconButton({
 								onClick={() => menuItemOnClick(item.onClick)}
 							>
 								{item.label}
+								{item.active && (
+									<Check className="AngelinPlayer__menu-list__item-button__check" />
+								)}
 							</button>
 						</li>
 					))}

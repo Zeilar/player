@@ -9,7 +9,8 @@ export type Icon =
 	| "VolumeOff"
 	| "Subtitles"
 	| "HD"
-	| "Close";
+	| "Close"
+	| "Check";
 
 export type IconComponent = React.FunctionComponent<
 	React.SVGProps<SVGSVGElement> & {

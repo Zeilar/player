@@ -230,8 +230,8 @@
 	position: absolute;
 	background-color: rgb(25, 25, 25);
 	border-radius: 5px;
-	bottom: 55px;
 	padding: 10px;
+	bottom: calc(100% + 5px);
 	right: 0;
 	animation: menuAnimation 0.15s forwards;
 	&[data-open="true"] {
@@ -254,6 +254,8 @@
 }
 
 .AngelinPlayer__menu-list__item-button {
+	display: flex;
+	justify-content: space-between;
 	border-radius: 5px;
 	padding: 8px;
 	width: 100%;
@@ -304,4 +306,10 @@
 
 .AngelinPlayer__controls-progress {
 	margin-left: 10px;
+}
+
+.AngelinPlayer__menu-list__item-button__check {
+	fill: var(--color-primary);
+	width: 1.25em;
+	height: 1.25em;
 }
