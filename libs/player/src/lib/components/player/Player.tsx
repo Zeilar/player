@@ -299,6 +299,7 @@ export function Player({
 				isPlaying={isPlaying}
 				isVideoLoaded={isLoaded}
 				isMuted={isMuted}
+				isScrubbing={isScrubbing}
 				onCaptionsToggle={onCaptionsToggle}
 				onCaptionsChange={onCaptionsChange}
 				onEnterFullscreen={() =>

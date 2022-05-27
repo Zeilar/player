@@ -313,3 +313,14 @@
 	width: 1.25em;
 	height: 1.25em;
 }
+
+.AngelinPlayer__timeline-track__progress__tooltip {
+	position: absolute;
+	transform: translateX(50%);
+	background-color: rgb(30, 30, 30);
+	user-select: none;
+	border-radius: 5px;
+	padding: 8px;
+	right: 0;
+	top: -40px;
+}

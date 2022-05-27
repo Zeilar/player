@@ -19,6 +19,7 @@ export interface PlayerControlsProps {
 	isMuted: boolean;
 	isVideoLoaded: boolean;
 	isFullscreen: boolean;
+	isScrubbing: boolean;
 	duration: number;
 	progressPercent: string | undefined;
 	progress: number;
@@ -47,6 +48,7 @@ export function PlayerControls({
 	isMuted,
 	isFullscreen,
 	isVideoLoaded,
+	isScrubbing,
 	onTimelineClick,
 	captions = [],
 	duration,
@@ -109,7 +111,13 @@ export function PlayerControls({
 						<div
 							className="AngelinPlayer__timeline-track__progress"
 							style={{ width: progressPercent }}
-						/>
+						>
+							{isScrubbing && (
+								<span className="AngelinPlayer__timeline-track__progress__tooltip">
+									{formattedProgress}
+								</span>
+							)}
+						</div>
 					</div>
 				</div>
 				<div className="AngelinPlayer__controls-buttons">
