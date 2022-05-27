@@ -138,8 +138,7 @@ export function IconButton({
 			)}
 			<button
 				className="AngelinPlayer__button"
-				data-test="HELLO"
-				onClick={() => setIsOpen(true)}
+				onClick={() => setIsOpen(p => !p)}
 				{...props}
 			>
 				<Icon {...svgProps} />
