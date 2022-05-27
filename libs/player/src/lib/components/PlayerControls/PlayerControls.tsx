@@ -22,7 +22,7 @@ export interface PlayerControlsProps {
 	progressPercent: string | undefined;
 	progress: number;
 	activeCaptionsIndex: number | null;
-	currentQuality: PlayerQuality;
+	currentQualityId: number;
 	qualities: PlayerQuality[];
 	volume: number;
 	captions?: PlayerCaptions[];
@@ -36,7 +36,7 @@ export interface PlayerControlsProps {
 	onVolumeChange(volume: number): void;
 	onUnmute(): void;
 	onMute(): void;
-	changeQuality(newQuality: PlayerQuality): void;
+	changeQuality(id: number): void;
 }
 
 export function PlayerControls({
@@ -55,14 +55,13 @@ export function PlayerControls({
 	onEnterFullscreen,
 	onExitFullscreen,
 	onCaptionsChange,
-	onCaptionsToggle,
 	onMute,
 	onUnmute,
 	onPause,
 	onPlay,
 	onVolumeChange,
 	activeCaptionsIndex,
-	currentQuality,
+	currentQualityId,
 	changeQuality,
 	qualities,
 	volume,
@@ -155,8 +154,8 @@ export function PlayerControls({
 							icon="HD"
 							menuItems={qualities.map(quality => ({
 								label: quality.label,
-								onClick: () => changeQuality(quality),
-								active: quality.id === currentQuality.id,
+								onClick: () => changeQuality(quality.id),
+								active: quality.id === currentQualityId,
 							}))}
 							menuTitle="Quality"
 						/>

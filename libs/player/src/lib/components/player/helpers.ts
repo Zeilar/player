@@ -49,10 +49,7 @@ export function toggleFullscreen(wrapperEl: HTMLDivElement | null) {
 	}
 }
 
-export function skip(player: HTMLVideoElement | null, seconds: number) {
-	if (!player) {
-		return;
-	}
+export function skip(player: HTMLVideoElement, seconds: number) {
 	player.currentTime += seconds;
 }
 

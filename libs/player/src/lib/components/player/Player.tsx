@@ -33,8 +33,8 @@ export function Player({
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
-	const [currentQuality, setCurrentQuality] = useState<PlayerQuality>(
-		qualities[0]
+	const [currentQualityId, setcurrentQualityId] = useState<number>(
+		qualities[0].id
 	);
 	const [activeCaptionsIndex, setActiveCaptionsIndex] = useState<
 		number | null
@@ -49,9 +49,9 @@ export function Player({
 		setIsPlaying(!videoEl.current.paused);
 	}, []);
 
-	function changeQuality(newQuality: PlayerQuality) {
-		setCurrentQuality(newQuality);
-		if (currentQuality.id !== newQuality.id) {
+	function changeQuality(id: number) {
+		setcurrentQualityId(id);
+		if (currentQualityId !== id) {
 			setIsPlaying(false);
 			setIsLoaded(false);
 		}
@@ -130,7 +130,9 @@ export function Player({
 
 	function orderSources() {
 		const qualitiesCopy = [...qualities];
-		const indexOfActive = qualitiesCopy.indexOf(currentQuality);
+		const indexOfActive = qualitiesCopy.findIndex(
+			quality => quality.id === currentQualityId
+		);
 		const active = qualitiesCopy.splice(indexOfActive, 1);
 		return [...active, ...qualitiesCopy];
 	}
@@ -194,7 +196,7 @@ export function Player({
 		const { currentTime } = videoEl.current;
 		videoEl.current.load();
 		videoEl.current.currentTime = currentTime;
-	}, [currentQuality]);
+	}, [currentQualityId]);
 
 	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
@@ -316,7 +318,7 @@ export function Player({
 				progressPercent={helpers.formatProgressPercent(videoEl.current)}
 				qualities={qualities}
 				activeCaptionsIndex={activeCaptionsIndex}
-				currentQuality={currentQuality}
+				currentQualityId={currentQualityId}
 				changeQuality={changeQuality}
 			/>
 			<video
@@ -338,7 +340,7 @@ export function Player({
 						key={i}
 						src={quality.src}
 						data-label={quality}
-						data-active={quality.id === currentQuality.id}
+						data-active={quality.id === currentQualityId}
 					/>
 				))}
 				{captions.map((caption, i) => (

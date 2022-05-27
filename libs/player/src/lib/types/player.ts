@@ -1,7 +1,7 @@
 export interface PlayerQuality {
 	label: string;
 	src: string;
-	id: string | number;
+	id: number;
 }
 
 export interface PlayerCaptions {
