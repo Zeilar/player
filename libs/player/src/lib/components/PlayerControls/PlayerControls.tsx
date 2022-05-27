@@ -19,10 +19,9 @@ export interface PlayerControlsProps {
 	isMuted: boolean;
 	isVideoLoaded: boolean;
 	isFullscreen: boolean;
-	isScrubbing: boolean;
-	duration: number;
 	progressPercent: string | undefined;
-	progress: number;
+	formattedProgress: string;
+	formattedDuration: string;
 	activeCaptionsIndex: number | null;
 	currentQualityId: number;
 	qualities: PlayerQuality[];
@@ -48,11 +47,10 @@ export function PlayerControls({
 	isMuted,
 	isFullscreen,
 	isVideoLoaded,
-	isScrubbing,
 	onTimelineClick,
 	captions = [],
-	duration,
-	progress,
+	formattedProgress,
+	formattedDuration,
 	progressPercent,
 	timelineEl,
 	onEnterFullscreen,
@@ -81,14 +79,6 @@ export function PlayerControls({
 			active: activeCaptionsIndex === null,
 		},
 	];
-	const formattedProgress = useMemo(
-		() => formatProgress(progress),
-		[progress]
-	);
-	const formattedDuration = useMemo(
-		() => (duration ? formatProgress(duration) : null),
-		[duration]
-	);
 	return (
 		<>
 			<svg
@@ -111,13 +101,7 @@ export function PlayerControls({
 						<div
 							className="AngelinPlayer__timeline-track__progress"
 							style={{ width: progressPercent }}
-						>
-							{isScrubbing && (
-								<span className="AngelinPlayer__timeline-track__progress__tooltip">
-									{formattedProgress}
-								</span>
-							)}
-						</div>
+						/>
 					</div>
 				</div>
 				<div className="AngelinPlayer__controls-buttons">

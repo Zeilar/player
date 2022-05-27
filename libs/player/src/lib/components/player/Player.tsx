@@ -1,6 +1,6 @@
 import "@fontsource/fira-sans";
 import "../../styles/player.scss";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { PlayerCaptions, PlayerQuality } from "../../types/player";
 import { PlayerControls } from "../PlayerControls";
 import * as helpers from "./helpers";
@@ -22,6 +22,7 @@ export function Player({
 }: PlayerProps) {
 	const prevVolume = useRef<number>(0.5);
 	const prevCaptions = useRef<number | null>(null);
+	const tooltipEl = useRef<HTMLSpanElement>(null);
 	const wrapperEl = useRef<HTMLDivElement>(null);
 	const videoEl = useRef<HTMLVideoElement>(null);
 	const timelineEl = useRef<HTMLDivElement>(null);
@@ -33,6 +34,8 @@ export function Player({
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [scrubberTooltipCss, setScrubberTooltipCss] =
+		useState<React.CSSProperties>({});
 	const [currentQualityId, setcurrentQualityId] = useState<number>(
 		qualities[0].id
 	);
@@ -41,6 +44,14 @@ export function Player({
 	>(null);
 	const [isMuted, setIsMuted] = useState(false);
 	const [volume, setVolume] = useState<number>(0.5);
+	const formattedProgress = useMemo(
+		() => helpers.formatProgress(progress),
+		[progress]
+	);
+	const formattedDuration = useMemo(
+		() => helpers.formatProgress(duration),
+		[duration]
+	);
 
 	useEffect(() => {
 		if (!videoEl.current) {
@@ -91,16 +102,45 @@ export function Player({
 		setProgress(e.currentTarget.currentTime);
 	}
 
-	function updateTimeline(e: React.MouseEvent | MouseEvent) {
-		if (!videoEl.current || !timelineEl.current) {
-			return;
-		}
-		const { x, width } = timelineEl.current.getBoundingClientRect();
-		const percent = Math.min(Math.max(0, e.clientX - x), width) / width;
-		const progress = videoEl.current.duration * percent;
-		videoEl.current.currentTime = progress;
-		setProgress(progress);
-	}
+	const positionScrubberTooltip = useCallback(
+		(percent: number) => {
+			if (!tooltipEl.current || !videoEl.current || !timelineEl.current) {
+				return;
+			}
+			const tooltipElRect = tooltipEl.current.getBoundingClientRect();
+			const videoElRect = videoEl.current.getBoundingClientRect();
+			const timelineElRect = timelineEl.current.getBoundingClientRect();
+			const width = progress >= 60 * 60 ? 50 : 40;
+			const left = helpers.clamp(
+				videoElRect.width * percent - width / 2,
+				videoElRect.x + 5,
+				videoElRect.width - width - 10
+			);
+			setScrubberTooltipCss({
+				top: timelineElRect.top - tooltipElRect.height - 5,
+				left,
+				width,
+			});
+		},
+		[progress]
+	);
+
+	const updateTimeline = useCallback(
+		(e: React.MouseEvent | MouseEvent) => {
+			if (!videoEl.current || !timelineEl.current) {
+				return;
+			}
+			const percent = helpers.getScrubberPercentage(
+				e,
+				timelineEl.current
+			);
+			const progress = videoEl.current.duration * percent;
+			videoEl.current.currentTime = progress;
+			setProgress(progress);
+			positionScrubberTooltip(percent);
+		},
+		[positionScrubberTooltip]
+	);
 
 	function onCaptionsToggle() {
 		setActiveCaptionsIndex(
@@ -212,6 +252,7 @@ export function Player({
 			}
 			e.preventDefault();
 			setIsScrubbing(false);
+			setScrubberTooltipCss({});
 		}
 		document.addEventListener("mousemove", mouseMoveHandler);
 		document.addEventListener("mouseup", scrubHandler);
@@ -219,7 +260,7 @@ export function Player({
 			document.removeEventListener("mousemove", mouseMoveHandler);
 			document.removeEventListener("mouseup", scrubHandler);
 		};
-	}, [isScrubbing]);
+	}, [isScrubbing, updateTimeline]);
 
 	function keyShortcutHandler(e: React.KeyboardEvent) {
 		if (!videoEl.current) {
@@ -291,6 +332,13 @@ export function Player({
 			tabIndex={1}
 			onKeyDown={keyShortcutHandler}
 		>
+			<span
+				className="AngelinPlayer__timeline-track__progress__tooltip"
+				ref={tooltipEl}
+				style={scrubberTooltipCss}
+			>
+				{formattedProgress}
+			</span>
 			<PlayerControls
 				controlsEl={controlsEl}
 				timelineEl={timelineEl}
@@ -299,7 +347,6 @@ export function Player({
 				isPlaying={isPlaying}
 				isVideoLoaded={isLoaded}
 				isMuted={isMuted}
-				isScrubbing={isScrubbing}
 				onCaptionsToggle={onCaptionsToggle}
 				onCaptionsChange={onCaptionsChange}
 				onEnterFullscreen={() =>
@@ -314,8 +361,8 @@ export function Player({
 				onTimelineClick={onTimelineClick}
 				volume={isMuted ? prevVolume.current : volume}
 				captions={captions}
-				duration={duration}
-				progress={progress}
+				formattedDuration={formattedDuration}
+				formattedProgress={formattedProgress}
 				progressPercent={helpers.formatProgressPercent(videoEl.current)}
 				qualities={qualities}
 				activeCaptionsIndex={activeCaptionsIndex}

@@ -315,12 +315,16 @@
 }
 
 .AngelinPlayer__timeline-track__progress__tooltip {
-	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	width: fit-content;
 	transform: translateX(50%);
 	background-color: rgb(30, 30, 30);
 	user-select: none;
 	border-radius: 5px;
-	padding: 8px;
-	right: 0;
-	top: -40px;
+	height: 30px;
+	left: -100px;
+	top: -100px;
 }

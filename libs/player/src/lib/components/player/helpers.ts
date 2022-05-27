@@ -18,6 +18,20 @@ export function enterFullscreen(wrapperEl: HTMLDivElement | null) {
 	wrapperEl?.requestFullscreen();
 }
 
+export function getScrubberPercentage(
+	e: React.MouseEvent | MouseEvent,
+	timelineEl: HTMLElement | null
+) {
+	if (!timelineEl) {
+		return 0;
+	}
+	const timelineElRect = timelineEl.getBoundingClientRect();
+	return (
+		clamp(0, e.clientX - timelineElRect.x, timelineElRect.width) /
+		timelineElRect.width
+	);
+}
+
 export function formatProgressPercent(player: HTMLVideoElement | null) {
 	if (!player) {
 		return undefined;
