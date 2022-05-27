@@ -10,6 +10,14 @@ export function play(player: HTMLVideoElement | null) {
 	player?.play();
 }
 
+export function restart(player: HTMLVideoElement | null) {
+	if (!player) {
+		return;
+	}
+	player.currentTime = 0;
+	play(player);
+}
+
 export function pause(player: HTMLVideoElement | null) {
 	player?.pause();
 }

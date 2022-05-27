@@ -183,6 +183,17 @@ export function Player({
 	}
 
 	useEffect(() => {
+		if (
+			!videoEl.current ||
+			progress < duration ||
+			isNaN(videoEl.current.duration)
+		) {
+			return;
+		}
+		setIsEnded(true);
+	}, [progress, duration]);
+
+	useEffect(() => {
 		function fullscreenHandler() {
 			setIsFullscreen(Boolean(document.fullscreenElement));
 		}
@@ -358,6 +369,7 @@ export function Player({
 				onVolumeChange={onVolumeInputChange}
 				onPause={() => helpers.pause(videoEl.current)}
 				onPlay={() => helpers.play(videoEl.current)}
+				onRestart={() => helpers.restart(videoEl.current)}
 				onTimelineClick={onTimelineClick}
 				volume={isMuted ? prevVolume.current : volume}
 				captions={captions}

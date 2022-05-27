@@ -29,6 +29,7 @@ export interface PlayerControlsProps {
 	onCaptionsChange(index: number | null): void;
 	onTimelineClick(e: React.MouseEvent<HTMLDivElement>): void;
 	onPlay(): void;
+	onRestart(): void;
 	onPause(): void;
 	onEnterFullscreen(): void;
 	onExitFullscreen(): void;
@@ -58,6 +59,7 @@ export function PlayerControls({
 	onUnmute,
 	onPause,
 	onPlay,
+	onRestart,
 	onVolumeChange,
 	activeCaptionsIndex,
 	currentQualityId,
@@ -113,7 +115,7 @@ export function PlayerControls({
 						) : (
 							<IconButton
 								disabled={!isVideoLoaded}
-								onClick={onPlay}
+								onClick={isEnded ? onRestart : onPlay}
 								icon={isEnded ? "Replay" : "Play"}
 							/>
 						)}
