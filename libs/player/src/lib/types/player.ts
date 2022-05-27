@@ -1,6 +1,7 @@
-export interface PlayerSrc {
-	Default: string;
-	[key: string]: string;
+export interface PlayerQuality {
+	label: string;
+	src: string;
+	id: string | number;
 }
 
 export interface PlayerCaptions {

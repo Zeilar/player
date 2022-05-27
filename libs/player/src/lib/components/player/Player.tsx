@@ -1,12 +1,12 @@
 import "@fontsource/fira-sans";
 import "../../styles/player.scss";
 import { useRef, useState, useEffect } from "react";
-import { PlayerCaptions, PlayerSrc } from "../../types/player";
+import { PlayerCaptions, PlayerQuality } from "../../types/player";
 import { PlayerControls } from "../PlayerControls";
 import * as helpers from "./helpers";
 
 export interface PlayerProps {
-	src: PlayerSrc;
+	qualities: PlayerQuality[];
 	captions?: PlayerCaptions[];
 	controls?: boolean;
 	aspectRatio?: string;
@@ -15,7 +15,7 @@ export interface PlayerProps {
 
 export function Player({
 	aspectRatio,
-	src,
+	qualities,
 	controls,
 	captions = [],
 	autoplay,
@@ -33,7 +33,9 @@ export function Player({
 	const [isEnded, setIsEnded] = useState(false);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
-	const [activeSrc, setActiveSrc] = useState<keyof PlayerSrc>("Default");
+	const [currentQuality, setCurrentQuality] = useState<PlayerQuality>(
+		qualities[0]
+	);
 	const [activeCaptionsIndex, setActiveCaptionsIndex] = useState<
 		number | null
 	>(null);
@@ -47,9 +49,9 @@ export function Player({
 		setIsPlaying(!videoEl.current.paused);
 	}, []);
 
-	function changeSrc(src: keyof PlayerSrc) {
-		setActiveSrc(src);
-		if (src !== activeSrc) {
+	function changeQuality(newQuality: PlayerQuality) {
+		setCurrentQuality(newQuality);
+		if (currentQuality.id !== newQuality.id) {
 			setIsPlaying(false);
 			setIsLoaded(false);
 		}
@@ -127,10 +129,10 @@ export function Player({
 	}
 
 	function orderSources() {
-		const srcs = Object.keys(src) as (keyof PlayerSrc)[];
-		const indexOfActive = srcs.indexOf(activeSrc);
-		const active = srcs.splice(indexOfActive, 1);
-		return [...active, ...srcs];
+		const qualitiesCopy = [...qualities];
+		const indexOfActive = qualitiesCopy.indexOf(currentQuality);
+		const active = qualitiesCopy.splice(indexOfActive, 1);
+		return [...active, ...qualitiesCopy];
 	}
 
 	function onLoadedData(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
@@ -192,7 +194,7 @@ export function Player({
 		const { currentTime } = videoEl.current;
 		videoEl.current.load();
 		videoEl.current.currentTime = currentTime;
-	}, [activeSrc]);
+	}, [currentQuality]);
 
 	useEffect(() => {
 		function mouseMoveHandler(e: MouseEvent) {
@@ -312,10 +314,10 @@ export function Player({
 				duration={duration}
 				progress={progress}
 				progressPercent={helpers.formatProgressPercent(videoEl.current)}
-				src={src}
+				qualities={qualities}
 				activeCaptionsIndex={activeCaptionsIndex}
-				activeSrc={activeSrc}
-				changeSrc={changeSrc}
+				currentQuality={currentQuality}
+				changeQuality={changeQuality}
 			/>
 			<video
 				className="AngelinPlayer__video"
@@ -331,12 +333,12 @@ export function Player({
 				onClick={() => helpers.togglePlay(videoEl.current)}
 				onTimeUpdate={onTimeUpdate}
 			>
-				{orderSources().map((key, i) => (
+				{orderSources().map((quality, i) => (
 					<source
 						key={i}
-						src={src[key]}
-						data-label={key}
-						data-active={key === activeSrc}
+						src={quality.src}
+						data-label={quality}
+						data-active={quality.id === currentQuality.id}
 					/>
 				))}
 				{captions.map((caption, i) => (

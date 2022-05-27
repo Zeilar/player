@@ -3,7 +3,7 @@ import { Player } from ".";
 
 describe("Player", () => {
 	it("should render successfully", () => {
-		const { baseElement } = render(<Player src={{ Default: "" }} />);
+		const { baseElement } = render(<Player qualities={{ Default: "" }} />);
 		expect(baseElement).toBeTruthy();
 	});
 });

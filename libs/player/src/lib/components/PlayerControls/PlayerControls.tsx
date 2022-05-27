@@ -1,5 +1,5 @@
 import { Icon, MenuItem } from "../../types/icons";
-import { PlayerCaptions, PlayerSrc } from "../../types/player";
+import { PlayerCaptions, PlayerQuality } from "../../types/player";
 import { IconButton } from "../IconButton";
 import { formatProgress } from "../Player/helpers";
 
@@ -22,8 +22,8 @@ export interface PlayerControlsProps {
 	progressPercent: string | undefined;
 	progress: number;
 	activeCaptionsIndex: number | null;
-	activeSrc: keyof PlayerSrc;
-	src: PlayerSrc;
+	currentQuality: PlayerQuality;
+	qualities: PlayerQuality[];
 	volume: number;
 	captions?: PlayerCaptions[];
 	onCaptionsToggle(): void;
@@ -36,7 +36,7 @@ export interface PlayerControlsProps {
 	onVolumeChange(volume: number): void;
 	onUnmute(): void;
 	onMute(): void;
-	changeSrc(src: keyof PlayerSrc): void;
+	changeQuality(newQuality: PlayerQuality): void;
 }
 
 export function PlayerControls({
@@ -62,9 +62,9 @@ export function PlayerControls({
 	onPlay,
 	onVolumeChange,
 	activeCaptionsIndex,
-	activeSrc,
-	changeSrc,
-	src,
+	currentQuality,
+	changeQuality,
+	qualities,
 	volume,
 }: PlayerControlsProps) {
 	const captionsMenu: MenuItem[] = [
@@ -153,10 +153,10 @@ export function PlayerControls({
 						/>
 						<IconButton
 							icon="HD"
-							menuItems={Object.keys(src).map(src => ({
-								label: src,
-								onClick: () => changeSrc(src),
-								active: src === activeSrc,
+							menuItems={qualities.map(quality => ({
+								label: quality.label,
+								onClick: () => changeQuality(quality),
+								active: quality.id === currentQuality.id,
 							}))}
 							menuTitle="Quality"
 						/>
