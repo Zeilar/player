@@ -232,7 +232,7 @@
 	background-color: rgb(30, 30, 30);
 	border-radius: 5px;
 	padding: 10px;
-	bottom: calc(100% + 11px);
+	bottom: calc(100% + 15px);
 	right: 0;
 	animation: menuAnimation 0.15s forwards;
 	&[data-open="true"] {
