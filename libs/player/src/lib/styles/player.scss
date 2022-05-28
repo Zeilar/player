@@ -311,16 +311,25 @@
 	height: 1.25em;
 }
 
-.AngelinPlayer__progress-tooltip {
+@mixin tooltip {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	position: fixed;
 	width: fit-content;
-	transform: translateX(50%);
 	background-color: rgb(30, 30, 30);
 	border-radius: 5px;
 	height: 30px;
 	left: -100px;
 	top: -100px;
+}
+
+.AngelinPlayer__progress-tooltip {
+	@include tooltip;
+	transform: translateX(50%);
+}
+
+.AngelinPlayer__button-tooltip {
+	@include tooltip;
+	padding: 5px 10px;
 }

@@ -101,6 +101,7 @@ export function PlayerControls({
 								disabled={!state.isLoaded}
 								onClick={controller.pause}
 								icon="Pause"
+								tooltip="Pause (space)"
 							/>
 						) : (
 							<IconButton
@@ -111,17 +112,24 @@ export function PlayerControls({
 										: controller.play
 								}
 								icon={state.isEnded ? "Replay" : "Play"}
+								tooltip={
+									state.isEnded
+										? "Replay (space)"
+										: "Play (space)"
+								}
 							/>
 						)}
 						{state.isMuted ? (
 							<IconButton
 								icon="VolumeOff"
 								onClick={controller.unmute}
+								tooltip="Unmute (m)"
 							/>
 						) : (
 							<IconButton
 								icon={getVolumeIcon(state.volume)}
 								onClick={controller.mute}
+								tooltip="Mute (m)"
 							/>
 						)}
 						<input
@@ -146,6 +154,7 @@ export function PlayerControls({
 							icon="Subtitles"
 							menuItems={captionsMenu}
 							menuTitle="Captions"
+							tooltip="Captions (c)"
 						/>
 						<IconButton
 							icon="HD"
@@ -155,16 +164,19 @@ export function PlayerControls({
 								active: quality.id === currentQualityId,
 							}))}
 							menuTitle="Quality"
+							tooltip="Quality"
 						/>
 						{state.isFullscreen ? (
 							<IconButton
 								onClick={exitFullscreen}
 								icon="FullscreenExit"
+								tooltip="Fullscreen (f)"
 							/>
 						) : (
 							<IconButton
 								onClick={enterFullscreen}
 								icon="FullscreenOpen"
+								tooltip="Exit fullscreen (f)"
 							/>
 						)}
 					</div>

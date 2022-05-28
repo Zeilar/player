@@ -1,6 +1,6 @@
 import "../../styles/player.scss";
 import { Icon, IconComponent, MenuItem, MenuPosition } from "../../types/icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useOnClickOutside } from "use-ful-hooks-ts";
 import {
 	FullscreenExit,
@@ -16,6 +16,7 @@ import {
 	VolumeOff,
 	VolumeUp,
 } from "../../assets/svgs";
+import { clamp } from "../../common/helpers";
 
 const icons: Record<Icon, IconComponent> = {
 	FullscreenExit,
@@ -38,6 +39,7 @@ export interface IconButtonProps
 	svgProps?: React.SVGAttributes<SVGElement>;
 	menuItems?: MenuItem[];
 	menuTitle?: string;
+	tooltip?: string;
 }
 
 export function IconButton({
@@ -45,16 +47,28 @@ export function IconButton({
 	svgProps,
 	menuItems = [],
 	menuTitle,
+	tooltip,
 	...props
 }: IconButtonProps) {
+	const tooltipRef = useRef<HTMLSpanElement>(null);
+	const buttonRef = useRef<HTMLButtonElement>(null);
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [isActive, setIsActive] = useState(false);
 	const menuWrapper = useOnClickOutside<HTMLDivElement>(() =>
 		setIsOpen(false)
 	);
 	const [menuPosition, setMenuPosition] = useState<MenuPosition>("right");
+	const [tooltipCss, setTooltipCss] = useState<React.CSSProperties>({});
 
 	const Icon = icons[icon];
+
+	const hideTooltip = useCallback(() => {
+		if (typeof tooltip !== "string") {
+			return;
+		}
+		setTooltipCss({});
+	}, [tooltip]);
 
 	const calculateMenuPosition = useCallback(() => {
 		if (!menuWrapper.current) {
@@ -68,12 +82,39 @@ export function IconButton({
 		}
 		const menuListElRect = menuListEl.getBoundingClientRect();
 		const playerElRect = playerEl.getBoundingClientRect();
+		hideTooltip();
 		setMenuPosition(
 			menuListElRect.x + menuListElRect.width + 5 > playerElRect.width
 				? "left"
 				: "right"
 		);
-	}, [menuWrapper]);
+	}, [menuWrapper, hideTooltip]);
+
+	const showTooltip = useCallback(() => {
+		if (
+			typeof tooltip !== "string" ||
+			!tooltipRef.current ||
+			!buttonRef.current
+		) {
+			return;
+		}
+		const wrapperEl = buttonRef.current.closest("[data-player]");
+		if (!wrapperEl) {
+			return;
+		}
+		const wrapperElRect = wrapperEl.getBoundingClientRect();
+		const tooltipRect = tooltipRef.current.getBoundingClientRect();
+		const buttonRect = buttonRef.current.getBoundingClientRect();
+		const left = clamp(
+			buttonRect.x + buttonRect.width / 2 - tooltipRect.width / 2,
+			wrapperElRect.x + 10,
+			wrapperElRect.width - tooltipRect.width
+		);
+		setTooltipCss({
+			top: buttonRect.top - tooltipRect.height - 15,
+			left,
+		});
+	}, [tooltip]);
 
 	useEffect(() => {
 		calculateMenuPosition();
@@ -84,14 +125,30 @@ export function IconButton({
 		return null;
 	}
 
+	const sharedButtonProps = {
+		className: "AngelinPlayer__button",
+		ref: buttonRef,
+		onMouseEnter: showTooltip,
+		onMouseLeave: hideTooltip,
+	};
+
 	if (menuItems.length === 0) {
 		return (
 			<button
-				className="AngelinPlayer__button"
 				onClick={() => setIsActive(p => !p)}
 				data-active={isActive}
+				{...sharedButtonProps}
 				{...props}
 			>
+				{tooltip && (
+					<span
+						className="AngelinPlayer__button-tooltip"
+						ref={tooltipRef}
+						style={tooltipCss}
+					>
+						{tooltip}
+					</span>
+				)}
 				<Icon {...svgProps} />
 			</button>
 		);
@@ -144,10 +201,19 @@ export function IconButton({
 				</ul>
 			)}
 			<button
-				className="AngelinPlayer__button"
 				onClick={() => setIsOpen(p => !p)}
+				{...sharedButtonProps}
 				{...props}
 			>
+				{tooltip && (
+					<span
+						className="AngelinPlayer__button-tooltip"
+						ref={tooltipRef}
+						style={tooltipCss}
+					>
+						{tooltip}
+					</span>
+				)}
 				<Icon {...svgProps} />
 			</button>
 		</div>
