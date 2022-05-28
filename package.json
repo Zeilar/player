@@ -21,6 +21,7 @@
 		"@nrwl/storybook": "14.1.7",
 		"@nrwl/web": "14.1.7",
 		"@nrwl/workspace": "14.1.7",
+		"@rollup/plugin-commonjs": "14.0.0",
 		"@storybook/addon-essentials": "6.5.3",
 		"@storybook/builder-webpack5": "6.5.3",
 		"@storybook/core-server": "6.5.3",
@@ -56,6 +57,7 @@
 	"dependencies": {
 		"@fontsource/fira-sans": "4.5.8",
 		"@fontsource/lato": "4.5.8",
+		"@svgr/rollup": "6.2.1",
 		"core-js": "^3.6.5",
 		"react": "18.1.0",
 		"react-dom": "18.1.0",
