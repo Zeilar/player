@@ -1,0 +1,12 @@
+export { ReactComponent as FullscreenExit } from "../../assets/svgs/fullscreen-exit.svg";
+export { ReactComponent as FullscreenOpen } from "../../assets/svgs/fullscreen-open.svg";
+export { ReactComponent as Pause } from "../../assets/svgs/pause.svg";
+export { ReactComponent as Play } from "../../assets/svgs/play.svg";
+export { ReactComponent as Replay } from "../../assets/svgs/replay.svg";
+export { ReactComponent as VolumeDown } from "../../assets/svgs/volume-down.svg";
+export { ReactComponent as VolumeUp } from "../../assets/svgs/volume-up.svg";
+export { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
+export { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
+export { ReactComponent as HD } from "../../assets/svgs/hd.svg";
+export { ReactComponent as Close } from "../../assets/svgs/close.svg";
+export { ReactComponent as Check } from "../../assets/svgs/check.svg";

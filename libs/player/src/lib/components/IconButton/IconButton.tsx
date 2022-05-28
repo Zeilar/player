@@ -1,19 +1,21 @@
 import "../../styles/player.scss";
 import { Icon, IconComponent, MenuItem, MenuPosition } from "../../types/icons";
-import { ReactComponent as FullscreenExit } from "../../assets/svgs/fullscreen-exit.svg";
-import { ReactComponent as FullscreenOpen } from "../../assets/svgs/fullscreen-open.svg";
-import { ReactComponent as Pause } from "../../assets/svgs/pause.svg";
-import { ReactComponent as Play } from "../../assets/svgs/play.svg";
-import { ReactComponent as Replay } from "../../assets/svgs/replay.svg";
-import { ReactComponent as VolumeDown } from "../../assets/svgs/volume-down.svg";
-import { ReactComponent as VolumeUp } from "../../assets/svgs/volume-up.svg";
-import { ReactComponent as VolumeOff } from "../../assets/svgs/volume-off.svg";
-import { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
-import { ReactComponent as HD } from "../../assets/svgs/hd.svg";
-import { ReactComponent as Close } from "../../assets/svgs/close.svg";
-import { ReactComponent as Check } from "../../assets/svgs/check.svg";
 import { useCallback, useEffect, useState } from "react";
 import { useOnClickOutside } from "use-ful-hooks-ts";
+import {
+	FullscreenExit,
+	Check,
+	Close,
+	FullscreenOpen,
+	HD,
+	Pause,
+	Play,
+	Replay,
+	Subtitles,
+	VolumeDown,
+	VolumeOff,
+	VolumeUp,
+} from "../../assets/svgs";
 
 const icons: Record<Icon, IconComponent> = {
 	FullscreenExit,

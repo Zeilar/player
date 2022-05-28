@@ -65,12 +65,12 @@ export function useVideo(
 		videoRef.current.volume = clamp(volume, 0, 1);
 	}
 
-	function goToStart() {
+	const goToStart = useCallback(() => {
 		if (!videoRef.current) {
 			return;
 		}
 		videoRef.current.currentTime = 0;
-	}
+	}, [videoRef]);
 
 	function goToEnd() {
 		// Duration may be NaN until video is loaded
@@ -80,10 +80,10 @@ export function useVideo(
 		videoRef.current.currentTime = videoRef.current.duration;
 	}
 
-	function reset() {
+	const reset = useCallback(() => {
 		setIsPlaying(false);
 		setIsLoaded(false);
-	}
+	}, []);
 
 	function mute() {
 		if (!videoRef.current) {
@@ -106,10 +106,11 @@ export function useVideo(
 		isMuted ? unmute() : mute();
 	}
 
-	function restart() {
+	const restart = useCallback(() => {
 		reset();
+		goToStart();
 		play();
-	}
+	}, [reset, play, goToStart]);
 
 	function skip(seconds: number) {
 		if (!videoRef.current) {
@@ -145,24 +146,24 @@ export function useVideo(
 		video.volume = prevVolume.current;
 
 		function onLoadedData(e: Event) {
+			const target = e.target as HTMLVideoElement;
 			setIsLoaded(true);
-			// @ts-expect-error types issue
-			setDuration(e.target.duration);
+			setDuration(target.duration);
 		}
 
 		function onVolumeChange(e: Event) {
-			// @ts-expect-error types issue
-			setVolume(e.target.volume);
+			const target = e.target as HTMLVideoElement;
+			setVolume(target.volume);
 		}
 
 		function onTimeUpdate(e: Event) {
-			// @ts-expect-error types issue
-			setProgress(e.target.currentTime);
+			const target = e.target as HTMLVideoElement;
+			setProgress(target.currentTime);
 		}
 
 		function onEnded(e: Event) {
-			// @ts-expect-error types issue
-			setIsEnded(e.target.ended);
+			const target = e.target as HTMLVideoElement;
+			setIsEnded(target.ended);
 		}
 
 		function fullscreenHandler() {
@@ -170,15 +171,14 @@ export function useVideo(
 		}
 
 		function onPlay(e: Event) {
-			// @ts-expect-error types issue
-			setIsPlaying(!e.target.paused);
-			// @ts-expect-error types issue
-			setIsEnded(e.target.ended);
+			const target = e.target as HTMLVideoElement;
+			setIsPlaying(!target.paused);
+			setIsEnded(target.ended);
 		}
 
 		function onPause(e: Event) {
-			// @ts-expect-error types issue
-			setIsPlaying(!e.target.paused);
+			const target = e.target as HTMLVideoElement;
+			setIsPlaying(!target.paused);
 		}
 
 		document.addEventListener("fullscreenchange", fullscreenHandler);
@@ -205,11 +205,15 @@ export function useVideo(
 			return;
 		}
 		const video = videoRef.current;
-		video.addEventListener("click", togglePlaying);
+		function clickHandler() {
+			console.log(isEnded);
+			isEnded ? restart() : togglePlaying();
+		}
+		video.addEventListener("click", clickHandler);
 		return () => {
-			video.removeEventListener("click", togglePlaying);
+			video.removeEventListener("click", clickHandler);
 		};
-	}, [videoRef, togglePlaying]);
+	}, [videoRef, togglePlaying, isEnded, restart]);
 
 	return [
 		{

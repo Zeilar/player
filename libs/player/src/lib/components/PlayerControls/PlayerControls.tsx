@@ -8,6 +8,7 @@ import {
 	formatProgress,
 	getVolumeIcon,
 } from "../../common/helpers";
+import { Play, Replay } from "../../assets/svgs";
 
 export interface PlayerControlsProps {
 	state: UseVideoState;
@@ -47,12 +48,9 @@ export function PlayerControls({
 		[state.duration]
 	);
 	const progressInPercent = useMemo(() => {
-		if (!state.isLoaded) {
-			return undefined;
-		}
 		const percent = (state.progress / state.duration) * 100;
 		return `${percent}%`;
-	}, [state.duration, state.isLoaded, state.progress]);
+	}, [state.duration, state.progress]);
 
 	const captionsMenu: MenuItem[] = [
 		...captions.map((caption, i) => ({
@@ -69,13 +67,17 @@ export function PlayerControls({
 
 	return (
 		<>
-			<svg
-				className="AngelinPlayer__big-resume-icon"
-				viewBox="0 0 24 24"
-				data-hidden={state.isPlaying}
-			>
-				<path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"></path>
-			</svg>
+			{state.isEnded ? (
+				<Replay
+					className="AngelinPlayer__big-resume-icon"
+					data-hidden={state.isPlaying}
+				/>
+			) : (
+				<Play
+					className="AngelinPlayer__big-resume-icon"
+					data-hidden={state.isPlaying}
+				/>
+			)}
 			<div className="AngelinPlayer__controls" ref={controlsEl}>
 				<div
 					className="AngelinPlayer__timeline"
