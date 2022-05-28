@@ -1,90 +1,78 @@
-import { Icon, MenuItem } from "../../types/icons";
+import { useMemo } from "react";
+import { MenuItem } from "../../types/icons";
 import { PlayerCaptions, PlayerQuality } from "../../types/player";
+import { UseVideoController, UseVideoState } from "../../types/useVideo";
 import { IconButton } from "../IconButton";
-
-function getVolumeIcon(volume: number): Icon {
-	if (volume === 0) {
-		return "VolumeOff";
-	}
-	return volume >= 0.5 ? "VolumeUp" : "VolumeDown";
-}
+import {
+	exitFullscreen,
+	formatProgress,
+	getVolumeIcon,
+} from "../../common/helpers";
 
 export interface PlayerControlsProps {
+	state: UseVideoState;
+	controller: UseVideoController;
 	controlsEl: React.RefObject<HTMLDivElement>;
 	timelineEl: React.RefObject<HTMLDivElement>;
-	isPlaying: boolean;
-	isEnded: boolean;
-	isMuted: boolean;
-	isVideoLoaded: boolean;
-	isFullscreen: boolean;
-	progressPercent: string | undefined;
-	formattedProgress: string;
-	formattedDuration: string;
 	activeCaptionsIndex: number | null;
 	currentQualityId: number;
 	qualities: PlayerQuality[];
-	volume: number;
 	captions?: PlayerCaptions[];
-	onCaptionsToggle(): void;
-	onCaptionsChange(index: number | null): void;
+	changeCaptions(index: number | null): void;
 	onTimelineClick(e: React.MouseEvent<HTMLDivElement>): void;
-	onPlay(): void;
-	onRestart(): void;
-	onPause(): void;
-	onEnterFullscreen(): void;
-	onExitFullscreen(): void;
-	onVolumeChange(volume: number): void;
-	onUnmute(): void;
-	onMute(): void;
+	enterFullscreen(): void;
 	changeQuality(id: number): void;
 }
 
 export function PlayerControls({
+	state,
+	controller,
 	controlsEl,
-	isPlaying,
-	isEnded,
-	isMuted,
-	isFullscreen,
-	isVideoLoaded,
 	onTimelineClick,
 	captions = [],
-	formattedProgress,
-	formattedDuration,
-	progressPercent,
 	timelineEl,
-	onEnterFullscreen,
-	onExitFullscreen,
-	onCaptionsChange,
-	onMute,
-	onUnmute,
-	onPause,
-	onPlay,
-	onRestart,
-	onVolumeChange,
+	enterFullscreen,
+	changeCaptions,
 	activeCaptionsIndex,
 	currentQualityId,
 	changeQuality,
 	qualities,
-	volume,
 }: PlayerControlsProps) {
+	const formattedProgress = useMemo(
+		() => formatProgress(state.progress),
+		[state.progress]
+	);
+	const formattedDuration = useMemo(
+		() => formatProgress(state.duration),
+		[state.duration]
+	);
+	const progressInPercent = useMemo(() => {
+		if (!state.isLoaded) {
+			return undefined;
+		}
+		const percent = (state.progress / state.duration) * 100;
+		return `${percent}%`;
+	}, [state.duration, state.isLoaded, state.progress]);
+
 	const captionsMenu: MenuItem[] = [
 		...captions.map((caption, i) => ({
 			label: caption.label,
-			onClick: () => onCaptionsChange(i),
+			onClick: () => changeCaptions(i),
 			active: activeCaptionsIndex === i,
 		})),
 		{
 			label: "Disabled",
-			onClick: () => onCaptionsChange(null),
+			onClick: () => changeCaptions(null),
 			active: activeCaptionsIndex === null,
 		},
 	];
+
 	return (
 		<>
 			<svg
 				className="AngelinPlayer__big-resume-icon"
 				viewBox="0 0 24 24"
-				data-hidden={isPlaying}
+				data-hidden={state.isPlaying}
 			>
 				<path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"></path>
 			</svg>
@@ -100,43 +88,52 @@ export function PlayerControls({
 					>
 						<div
 							className="AngelinPlayer__timeline-track__progress"
-							style={{ width: progressPercent }}
+							style={{ width: progressInPercent }}
 						/>
 					</div>
 				</div>
 				<div className="AngelinPlayer__controls-buttons">
 					<div className="AngelinPlayer__controls-buttons__group">
-						{isPlaying ? (
+						{state.isPlaying ? (
 							<IconButton
-								disabled={!isVideoLoaded}
-								onClick={onPause}
+								disabled={!state.isLoaded}
+								onClick={controller.pause}
 								icon="Pause"
 							/>
 						) : (
 							<IconButton
-								disabled={!isVideoLoaded}
-								onClick={isEnded ? onRestart : onPlay}
-								icon={isEnded ? "Replay" : "Play"}
+								disabled={!state.isLoaded}
+								onClick={
+									state.isEnded
+										? controller.restart
+										: controller.play
+								}
+								icon={state.isEnded ? "Replay" : "Play"}
 							/>
 						)}
-						{isMuted ? (
-							<IconButton icon="VolumeOff" onClick={onUnmute} />
+						{state.isMuted ? (
+							<IconButton
+								icon="VolumeOff"
+								onClick={controller.unmute}
+							/>
 						) : (
 							<IconButton
-								icon={getVolumeIcon(volume)}
-								onClick={onMute}
+								icon={getVolumeIcon(state.volume)}
+								onClick={controller.mute}
 							/>
 						)}
 						<input
 							className="AngelinPlayer__controls-volumeslider"
 							type="range"
-							value={volume * 100}
+							value={state.volume * 100}
 							onChange={e =>
-								onVolumeChange(parseInt(e.target.value) / 100)
+								controller.changeVolume(
+									parseInt(e.target.value) / 100
+								)
 							}
 							min={0}
 							max={100}
-							style={{ backgroundSize: `${volume * 100}%` }}
+							style={{ backgroundSize: `${state.volume * 100}%` }}
 						/>
 						<span className="AngelinPlayer__controls-progress">
 							{`${formattedProgress} / ${formattedDuration}`}
@@ -157,14 +154,14 @@ export function PlayerControls({
 							}))}
 							menuTitle="Quality"
 						/>
-						{isFullscreen ? (
+						{state.isFullscreen ? (
 							<IconButton
-								onClick={onExitFullscreen}
+								onClick={exitFullscreen}
 								icon="FullscreenExit"
 							/>
 						) : (
 							<IconButton
-								onClick={onEnterFullscreen}
+								onClick={enterFullscreen}
 								icon="FullscreenOpen"
 							/>
 						)}

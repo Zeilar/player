@@ -1,9 +1,15 @@
 import "@fontsource/fira-sans";
 import "../../styles/player.scss";
-import { useRef, useState, useEffect, useMemo, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { PlayerCaptions, PlayerQuality } from "../../types/player";
 import { PlayerControls } from "../PlayerControls";
-import * as helpers from "./helpers";
+import { useVideo } from "../../hooks/useVideo";
+import {
+	clamp,
+	enterFullscreen,
+	getScrubberPercentage,
+	toggleFullscreen,
+} from "../../common/helpers";
 
 export interface PlayerProps {
 	qualities: PlayerQuality[];
@@ -20,86 +26,30 @@ export function Player({
 	captions = [],
 	autoplay,
 }: PlayerProps) {
-	const prevVolume = useRef<number>(0.5);
+	const videoEl = useRef<HTMLVideoElement>(null);
+	const [state, controller] = useVideo(videoEl);
+
 	const prevCaptions = useRef<number | null>(null);
 	const tooltipEl = useRef<HTMLSpanElement>(null);
 	const wrapperEl = useRef<HTMLDivElement>(null);
-	const videoEl = useRef<HTMLVideoElement>(null);
 	const timelineEl = useRef<HTMLDivElement>(null);
 	const controlsEl = useRef<HTMLDivElement>(null);
-	const [duration, setDuration] = useState<number>(0);
-	const [isLoaded, setIsLoaded] = useState(false);
-	const [progress, setProgress] = useState(0);
-	const [isPlaying, setIsPlaying] = useState(false);
-	const [isEnded, setIsEnded] = useState(false);
+
 	const [isScrubbing, setIsScrubbing] = useState(false);
-	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [scrubberTooltipCss, setScrubberTooltipCss] =
 		useState<React.CSSProperties>({});
-	const [currentQualityId, setcurrentQualityId] = useState<number>(
+	const [currentQualityId, setCurrentQualityId] = useState<number>(
 		qualities[0].id
 	);
 	const [activeCaptionsIndex, setActiveCaptionsIndex] = useState<
 		number | null
 	>(null);
-	const [isMuted, setIsMuted] = useState(false);
-	const [volume, setVolume] = useState<number>(0.5);
-	const formattedProgress = useMemo(
-		() => helpers.formatProgress(progress),
-		[progress]
-	);
-	const formattedDuration = useMemo(
-		() => helpers.formatProgress(duration),
-		[duration]
-	);
-
-	useEffect(() => {
-		if (!videoEl.current) {
-			return;
-		}
-		setIsPlaying(!videoEl.current.paused);
-	}, []);
 
 	function changeQuality(id: number) {
-		setcurrentQualityId(id);
+		setCurrentQualityId(id);
 		if (currentQualityId !== id) {
-			setIsPlaying(false);
-			setIsLoaded(false);
+			controller.reset();
 		}
-	}
-
-	function onVolumeChange(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
-		prevVolume.current = isMuted ? volume : e.currentTarget.volume;
-		setVolume(e.currentTarget.volume);
-	}
-
-	function onVolumeInputChange(volume: number) {
-		if (!videoEl.current) {
-			return;
-		}
-		videoEl.current.volume = volume;
-		setIsMuted(false);
-	}
-
-	function onMute() {
-		if (!videoEl.current) {
-			return;
-		}
-		setIsMuted(true);
-	}
-
-	function onUnmute() {
-		if (!videoEl.current) {
-			return;
-		}
-		setIsMuted(false);
-	}
-
-	function onTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
-		if (isScrubbing || !e.currentTarget) {
-			return;
-		}
-		setProgress(e.currentTarget.currentTime);
 	}
 
 	const positionScrubberTooltip = useCallback(
@@ -110,8 +60,8 @@ export function Player({
 			const tooltipElRect = tooltipEl.current.getBoundingClientRect();
 			const videoElRect = videoEl.current.getBoundingClientRect();
 			const timelineElRect = timelineEl.current.getBoundingClientRect();
-			const width = progress >= 60 * 60 ? 50 : 40;
-			const left = helpers.clamp(
+			const width = state.progress >= 60 * 60 ? 50 : 40;
+			const left = clamp(
 				videoElRect.width * percent - width / 2,
 				videoElRect.x - 10,
 				videoElRect.width - width - 10
@@ -122,7 +72,7 @@ export function Player({
 				width,
 			});
 		},
-		[progress]
+		[state.progress]
 	);
 
 	const updateTimeline = useCallback(
@@ -130,28 +80,21 @@ export function Player({
 			if (!videoEl.current || !timelineEl.current) {
 				return;
 			}
-			const percent = helpers.getScrubberPercentage(
-				e,
-				timelineEl.current
-			);
+			const percent = getScrubberPercentage(e, timelineEl.current);
 			const progress = videoEl.current.duration * percent;
 			videoEl.current.currentTime = progress;
-			setProgress(progress);
+			controller.setProgress(progress); // Need this, otherwise the number only updates after video has loaded the new progress
 			positionScrubberTooltip(percent);
 		},
-		[positionScrubberTooltip]
+		[positionScrubberTooltip, controller]
 	);
 
-	function onCaptionsToggle() {
+	function toggleCaptions() {
 		setActiveCaptionsIndex(
 			typeof activeCaptionsIndex === "number"
 				? null
 				: prevCaptions.current ?? 0
 		);
-	}
-
-	function onCaptionsChange(index: number | null) {
-		setActiveCaptionsIndex(index);
 	}
 
 	function onTimelineClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -163,11 +106,6 @@ export function Player({
 		updateTimeline(e);
 	}
 
-	function onPlay() {
-		setIsEnded(false);
-		setIsPlaying(true);
-	}
-
 	function orderSources() {
 		const qualitiesCopy = [...qualities];
 		const indexOfActive = qualitiesCopy.findIndex(
@@ -177,26 +115,7 @@ export function Player({
 		return [...active, ...qualitiesCopy];
 	}
 
-	function onLoadedData(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
-		setIsLoaded(true);
-		setDuration(e.currentTarget.duration);
-	}
-
 	useEffect(() => {
-		if (
-			!videoEl.current ||
-			progress < duration ||
-			isNaN(videoEl.current.duration)
-		) {
-			return;
-		}
-		setIsEnded(true);
-	}, [progress, duration]);
-
-	useEffect(() => {
-		function fullscreenHandler() {
-			setIsFullscreen(Boolean(document.fullscreenElement));
-		}
 		function customContextMenu(e: MouseEvent) {
 			if (!wrapperEl.current || !controlsEl.current) {
 				return;
@@ -205,20 +124,11 @@ export function Player({
 				e.preventDefault();
 			}
 		}
-		document.addEventListener("fullscreenchange", fullscreenHandler);
 		document.addEventListener("contextmenu", customContextMenu);
 		return () => {
-			document.removeEventListener("fullscreenchange", fullscreenHandler);
 			document.removeEventListener("contextmenu", customContextMenu);
 		};
 	}, []);
-
-	useEffect(() => {
-		if (!videoEl.current) {
-			return;
-		}
-		videoEl.current.volume = isMuted ? 0 : prevVolume.current;
-	}, [isMuted]);
 
 	useEffect(() => {
 		if (!videoEl.current) {
@@ -250,14 +160,15 @@ export function Player({
 	}, [currentQualityId]);
 
 	useEffect(() => {
-		function mouseMoveHandler(e: MouseEvent) {
+		function scrub(e: MouseEvent) {
 			if (!videoEl.current || !isScrubbing) {
 				return;
 			}
 			e.preventDefault();
 			updateTimeline(e);
 		}
-		function scrubHandler(e: MouseEvent) {
+
+		function stopScrubbing(e: MouseEvent) {
 			if (!isScrubbing) {
 				return;
 			}
@@ -265,15 +176,17 @@ export function Player({
 			setIsScrubbing(false);
 			setScrubberTooltipCss({});
 		}
-		document.addEventListener("mousemove", mouseMoveHandler);
-		document.addEventListener("mouseup", scrubHandler);
+
+		document.addEventListener("mousemove", scrub);
+		document.addEventListener("mouseup", stopScrubbing);
+
 		return () => {
-			document.removeEventListener("mousemove", mouseMoveHandler);
-			document.removeEventListener("mouseup", scrubHandler);
+			document.removeEventListener("mousemove", scrub);
+			document.removeEventListener("mouseup", stopScrubbing);
 		};
 	}, [isScrubbing, updateTimeline]);
 
-	function keyShortcutHandler(e: React.KeyboardEvent) {
+	function shortcutHandler(e: React.KeyboardEvent) {
 		if (!videoEl.current) {
 			return;
 		}
@@ -281,55 +194,35 @@ export function Player({
 		e.stopPropagation();
 		switch (e.key) {
 			case "Home":
-				videoEl.current.currentTime = 0;
+				controller.goToStart();
 				break;
 			case "End":
-				videoEl.current.currentTime = videoEl.current.duration;
+				controller.goToEnd();
 				break;
 			case "c":
-				onCaptionsToggle();
+				toggleCaptions();
 				break;
 			case "f":
-				helpers.toggleFullscreen(wrapperEl.current);
+				toggleFullscreen(wrapperEl.current);
 				break;
 			case " ":
 				e.preventDefault();
-				helpers.togglePlay(videoEl.current);
+				controller.togglePlaying();
 				break;
 			case "ArrowRight":
-				helpers.skip(videoEl.current, 5);
+				controller.skip(5);
 				break;
 			case "ArrowLeft":
-				helpers.skip(videoEl.current, -5);
+				controller.skip(-5);
 				break;
 			case "ArrowUp":
-				if (isMuted) {
-					const volume = helpers.clamp(
-						prevVolume.current + 0.05,
-						0,
-						1
-					);
-					prevVolume.current = volume;
-					setVolume(volume);
-				} else {
-					helpers.bumpVolume(videoEl.current, "up");
-				}
+				controller.bumpVolume(0.05);
 				break;
 			case "ArrowDown":
-				if (isMuted) {
-					const volume = helpers.clamp(
-						prevVolume.current - 0.05,
-						0,
-						1
-					);
-					prevVolume.current = volume;
-					setVolume(volume);
-				} else {
-					helpers.bumpVolume(videoEl.current, "down");
-				}
+				controller.bumpVolume(-0.05);
 				break;
 			case "m":
-				isMuted ? onUnmute() : onMute();
+				controller.toggleMute();
 				break;
 		}
 	}
@@ -338,44 +231,27 @@ export function Player({
 		<div
 			className="AngelinPlayer"
 			data-player
-			data-paused={videoEl.current?.paused === true}
+			data-paused={state.isPlaying === false}
 			ref={wrapperEl}
 			tabIndex={1}
-			onKeyDown={keyShortcutHandler}
+			onKeyDown={shortcutHandler}
 		>
 			<span
-				className="AngelinPlayer__timeline-track__progress__tooltip"
+				className="AngelinPlayer__progress-tooltip"
 				ref={tooltipEl}
 				style={scrubberTooltipCss}
 			>
-				{formattedProgress}
+				{state.formattedProgress}
 			</span>
 			<PlayerControls
+				state={state}
+				controller={controller}
 				controlsEl={controlsEl}
 				timelineEl={timelineEl}
-				isEnded={isEnded}
-				isFullscreen={isFullscreen}
-				isPlaying={isPlaying}
-				isVideoLoaded={isLoaded}
-				isMuted={isMuted}
-				onCaptionsToggle={onCaptionsToggle}
-				onCaptionsChange={onCaptionsChange}
-				onEnterFullscreen={() =>
-					helpers.enterFullscreen(wrapperEl.current)
-				}
-				onExitFullscreen={helpers.exitFullscreen}
-				onMute={onMute}
-				onUnmute={onUnmute}
-				onVolumeChange={onVolumeInputChange}
-				onPause={() => helpers.pause(videoEl.current)}
-				onPlay={() => helpers.play(videoEl.current)}
-				onRestart={() => helpers.restart(videoEl.current)}
+				changeCaptions={index => setActiveCaptionsIndex(index)}
+				enterFullscreen={() => enterFullscreen(wrapperEl.current)}
 				onTimelineClick={onTimelineClick}
-				volume={isMuted ? prevVolume.current : volume}
 				captions={captions}
-				formattedDuration={formattedDuration}
-				formattedProgress={formattedProgress}
-				progressPercent={helpers.formatProgressPercent(videoEl.current)}
 				qualities={qualities}
 				activeCaptionsIndex={activeCaptionsIndex}
 				currentQualityId={currentQualityId}
@@ -387,13 +263,6 @@ export function Player({
 				ref={videoEl}
 				autoPlay={autoplay}
 				controls={controls}
-				onPlay={onPlay}
-				onVolumeChange={onVolumeChange}
-				onLoadedData={onLoadedData}
-				onPause={() => setIsPlaying(false)}
-				onEnded={() => setIsEnded(true)}
-				onClick={() => helpers.togglePlay(videoEl.current)}
-				onTimeUpdate={onTimeUpdate}
 			>
 				{orderSources().map((quality, i) => (
 					<source

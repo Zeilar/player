@@ -1,25 +1,11 @@
+import { Icon } from "../types/icons";
+
 export const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
 	minimumIntegerDigits: 2,
 });
 
 export function clamp(n: number, min: number, max: number) {
 	return Math.min(Math.max(n, min), max);
-}
-
-export function play(player: HTMLVideoElement | null) {
-	player?.play();
-}
-
-export function restart(player: HTMLVideoElement | null) {
-	if (!player) {
-		return;
-	}
-	player.currentTime = 0;
-	play(player);
-}
-
-export function pause(player: HTMLVideoElement | null) {
-	player?.pause();
 }
 
 export function enterFullscreen(wrapperEl: HTMLDivElement | null) {
@@ -38,14 +24,6 @@ export function getScrubberPercentage(
 		clamp(0, e.clientX - timelineElRect.x, timelineElRect.width) /
 		timelineElRect.width
 	);
-}
-
-export function formatProgressPercent(player: HTMLVideoElement | null) {
-	if (!player) {
-		return undefined;
-	}
-	const percent = (player.currentTime / player.duration) * 100;
-	return `${percent}%`;
 }
 
 export function formatProgress(progress: number) {
@@ -71,29 +49,9 @@ export function toggleFullscreen(wrapperEl: HTMLDivElement | null) {
 	}
 }
 
-export function skip(player: HTMLVideoElement, seconds: number) {
-	player.currentTime += seconds;
-}
-
-export function bumpVolume(
-	player: HTMLVideoElement | null,
-	direction: "up" | "down"
-) {
-	if (!player) {
-		return;
+export function getVolumeIcon(volume: number): Icon {
+	if (volume === 0) {
+		return "VolumeOff";
 	}
-	const n = direction === "down" ? -0.05 : 0.05;
-	const clamped = clamp(player.volume + n, 0, 1);
-	player.volume = Math.round(clamped * 100) / 100;
-}
-
-export function togglePlay(player: HTMLVideoElement | null) {
-	if (!player) {
-		return;
-	}
-	if (player.paused) {
-		player.play();
-	} else {
-		player.pause();
-	}
+	return volume >= 0.5 ? "VolumeUp" : "VolumeDown";
 }
