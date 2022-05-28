@@ -4,26 +4,16 @@ import type {
 	UseVideoController,
 	UseVideoState,
 	Float,
+	UseVideoOptions,
 } from "../types/useVideo";
 
 const DEFAULT_OPTIONS = {
 	initialVolume: 0.5,
-};
-
-interface Options {
-	// qualities?: PlayerQuality[];
-	// controls?: boolean;
-	// captions: PlayerCaptions[];
-	// autoplay?: boolean;
-	/**
-	 * Float value between 0 and 1.
-	 */
-	initialVolume?: Float;
-}
+} as const;
 
 export function useVideo(
 	videoRef: React.RefObject<HTMLVideoElement>,
-	options: Options = DEFAULT_OPTIONS
+	options: UseVideoOptions = DEFAULT_OPTIONS
 ): [UseVideoState, UseVideoController] {
 	const prevVolume = useRef(
 		options?.initialVolume ?? DEFAULT_OPTIONS.initialVolume

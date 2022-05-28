@@ -1,5 +1,9 @@
 export type Float = number; // Just to make it more verbose that some things should take floats instead of integers.
 
+export interface UseVideoOptions {
+	initialVolume?: Float;
+}
+
 export interface UseVideoState {
 	isPlaying: boolean;
 	isLoaded: boolean;
