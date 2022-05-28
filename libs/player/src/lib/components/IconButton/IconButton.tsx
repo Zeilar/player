@@ -107,8 +107,8 @@ export function IconButton({
 		const buttonRect = buttonRef.current.getBoundingClientRect();
 		const left = clamp(
 			buttonRect.x + buttonRect.width / 2 - tooltipRect.width / 2,
-			wrapperElRect.x + 10,
-			wrapperElRect.width - tooltipRect.width
+			wrapperElRect.x + 5,
+			wrapperElRect.width - tooltipRect.width + 10
 		);
 		setTooltipCss({
 			top: buttonRect.top - tooltipRect.height - 15,
