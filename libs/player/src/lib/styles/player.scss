@@ -4,6 +4,7 @@
 	--shadow-grabber: 0 0 3px 0 rgba(0, 0, 0, 0.25);
 	--icon-size: 30px;
 	--font-family: Fira Sans, sans-serif;
+	user-select: none;
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -243,7 +244,6 @@
 	min-width: 150px;
 	max-width: 100%;
 	border-radius: 5px;
-	user-select: none;
 	&[data-active="true"] {
 		cursor: pointer;
 		.AngelinPlayer__menu-list__item-button {
@@ -322,7 +322,6 @@
 	width: fit-content;
 	transform: translateX(50%);
 	background-color: rgb(30, 30, 30);
-	user-select: none;
 	border-radius: 5px;
 	height: 30px;
 	left: -100px;
