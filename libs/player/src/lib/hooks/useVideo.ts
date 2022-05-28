@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { clamp, formatProgress } from "../common/helpers";
 import type {
 	UseVideoController,
@@ -15,10 +15,6 @@ export function useVideo(
 	videoRef: React.RefObject<HTMLVideoElement>,
 	options: UseVideoOptions = DEFAULT_OPTIONS
 ): [UseVideoState, UseVideoController] {
-	const prevVolume = useRef(
-		options?.initialVolume ?? DEFAULT_OPTIONS.initialVolume
-	);
-
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEnded, setIsEnded] = useState(false);
@@ -89,8 +85,6 @@ export function useVideo(
 		if (!videoRef.current) {
 			return;
 		}
-		prevVolume.current = videoRef.current.volume;
-		videoRef.current.volume = 0;
 		setIsMuted(true);
 	}
 
@@ -98,7 +92,6 @@ export function useVideo(
 		if (!videoRef.current) {
 			return;
 		}
-		videoRef.current.volume = prevVolume.current;
 		setIsMuted(false);
 	}
 
@@ -143,7 +136,8 @@ export function useVideo(
 			return;
 		}
 
-		video.volume = prevVolume.current;
+		// Set the volume to default on first render
+		video.volume = volume;
 
 		function onLoadedData(e: Event) {
 			const target = e.target as HTMLVideoElement;
@@ -198,6 +192,7 @@ export function useVideo(
 			video.removeEventListener("play", onPlay);
 			video.removeEventListener("pause", onPause);
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [videoRef]);
 
 	useEffect(() => {
@@ -206,7 +201,6 @@ export function useVideo(
 		}
 		const video = videoRef.current;
 		function clickHandler() {
-			console.log(isEnded);
 			isEnded ? restart() : togglePlaying();
 		}
 		video.addEventListener("click", clickHandler);

@@ -263,6 +263,7 @@ export function Player({
 				ref={videoEl}
 				autoPlay={autoplay}
 				controls={controls}
+				muted={state.isMuted}
 			>
 				{orderSources().map((quality, i) => (
 					<source
