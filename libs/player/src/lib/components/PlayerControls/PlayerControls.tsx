@@ -71,8 +71,6 @@ export function PlayerControls({
 		},
 	];
 
-	console.log(progressInPercent);
-
 	return (
 		<>
 			{state.isEnded ? (
