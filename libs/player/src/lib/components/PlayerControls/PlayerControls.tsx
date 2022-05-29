@@ -50,6 +50,10 @@ export function PlayerControls({
 		[state.duration]
 	);
 	const progressInPercent = useMemo(() => {
+		// If duration is anything but a positive integer, avoid getting NaN results.
+		if (!state.duration) {
+			return "0%";
+		}
 		const percent = (state.progress / state.duration) * 100;
 		return `${percent}%`;
 	}, [state.duration, state.progress]);
@@ -66,6 +70,8 @@ export function PlayerControls({
 			active: activeCaptionsIndex === null,
 		},
 	];
+
+	console.log(progressInPercent);
 
 	return (
 		<>

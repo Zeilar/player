@@ -21,10 +21,10 @@ export interface PlayerProps {
 
 export function Player({
 	aspectRatio,
-	qualities,
-	controls,
+	qualities = [],
+	controls = false,
 	captions = [],
-	autoplay,
+	autoplay = false,
 }: PlayerProps) {
 	const videoEl = useRef<HTMLVideoElement>(null);
 	const [state, controller] = useVideo(videoEl);
