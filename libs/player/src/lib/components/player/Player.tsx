@@ -256,6 +256,7 @@ export function Player({
 				activeCaptionsIndex={activeCaptionsIndex}
 				currentQualityId={currentQualityId}
 				changeQuality={changeQuality}
+				isScrubbing={isScrubbing}
 			/>
 			<video
 				className="AngelinPlayer__video"

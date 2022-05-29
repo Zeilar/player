@@ -15,6 +15,7 @@ export interface PlayerControlsProps {
 	controller: UseVideoController;
 	controlsEl: React.RefObject<HTMLDivElement>;
 	timelineEl: React.RefObject<HTMLDivElement>;
+	isScrubbing: boolean;
 	activeCaptionsIndex: number | null;
 	currentQualityId: number;
 	qualities: PlayerQuality[];
@@ -38,6 +39,7 @@ export function PlayerControls({
 	currentQualityId,
 	changeQuality,
 	qualities,
+	isScrubbing,
 }: PlayerControlsProps) {
 	const formattedProgress = useMemo(
 		() => formatProgress(state.progress),
@@ -98,6 +100,7 @@ export function PlayerControls({
 					<div className="AngelinPlayer__controls-buttons__group">
 						{state.isPlaying ? (
 							<IconButton
+								isScrubbing={isScrubbing}
 								disabled={!state.isLoaded}
 								onClick={controller.pause}
 								icon="Pause"
@@ -105,6 +108,7 @@ export function PlayerControls({
 							/>
 						) : (
 							<IconButton
+								isScrubbing={isScrubbing}
 								disabled={!state.isLoaded}
 								onClick={
 									state.isEnded
@@ -121,12 +125,14 @@ export function PlayerControls({
 						)}
 						{state.isMuted ? (
 							<IconButton
+								isScrubbing={isScrubbing}
 								icon="VolumeOff"
 								onClick={controller.unmute}
 								tooltip="Unmute (m)"
 							/>
 						) : (
 							<IconButton
+								isScrubbing={isScrubbing}
 								icon={getVolumeIcon(state.volume)}
 								onClick={controller.mute}
 								tooltip="Mute (m)"
@@ -151,12 +157,14 @@ export function PlayerControls({
 					</div>
 					<div className="AngelinPlayer__controls-buttons__group">
 						<IconButton
+							isScrubbing={isScrubbing}
 							icon="Subtitles"
 							menuItems={captionsMenu}
 							menuTitle="Captions"
 							tooltip="Captions (c)"
 						/>
 						<IconButton
+							isScrubbing={isScrubbing}
 							icon="HD"
 							menuItems={qualities.map(quality => ({
 								label: quality.label,
@@ -168,12 +176,14 @@ export function PlayerControls({
 						/>
 						{state.isFullscreen ? (
 							<IconButton
+								isScrubbing={isScrubbing}
 								onClick={exitFullscreen}
 								icon="FullscreenExit"
 								tooltip="Fullscreen (f)"
 							/>
 						) : (
 							<IconButton
+								isScrubbing={isScrubbing}
 								onClick={enterFullscreen}
 								icon="FullscreenOpen"
 								tooltip="Exit fullscreen (f)"

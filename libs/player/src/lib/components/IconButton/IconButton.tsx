@@ -40,6 +40,7 @@ export interface IconButtonProps
 	menuItems?: MenuItem[];
 	menuTitle?: string;
 	tooltip?: string;
+	isScrubbing: boolean;
 }
 
 export function IconButton({
@@ -48,6 +49,7 @@ export function IconButton({
 	menuItems = [],
 	menuTitle,
 	tooltip,
+	isScrubbing,
 	...props
 }: IconButtonProps) {
 	const tooltipRef = useRef<HTMLSpanElement>(null);
@@ -64,11 +66,8 @@ export function IconButton({
 	const Icon = icons[icon];
 
 	const hideTooltip = useCallback(() => {
-		if (typeof tooltip !== "string") {
-			return;
-		}
 		setTooltipCss({});
-	}, [tooltip]);
+	}, []);
 
 	const calculateMenuPosition = useCallback(() => {
 		if (!menuWrapper.current) {
@@ -94,7 +93,8 @@ export function IconButton({
 		if (
 			typeof tooltip !== "string" ||
 			!tooltipRef.current ||
-			!buttonRef.current
+			!buttonRef.current ||
+			isScrubbing
 		) {
 			return;
 		}
@@ -114,7 +114,7 @@ export function IconButton({
 			top: buttonRect.top - tooltipRect.height - 15,
 			left,
 		});
-	}, [tooltip]);
+	}, [tooltip, isScrubbing]);
 
 	useEffect(() => {
 		calculateMenuPosition();

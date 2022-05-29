@@ -14,6 +14,7 @@
 	color: var(--color-text);
 	font-family: var(--font-family);
 	font-size: 85%;
+	touch-action: none;
 	&::before {
 		content: "";
 		opacity: 0;
@@ -69,7 +70,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 5px 10px;
 }
 
 .AngelinPlayer__controls {
@@ -82,7 +82,13 @@
 	z-index: 100;
 	width: 100%;
 	transition: 0.15s;
-	background-color: rgba(0, 0, 0, 0.75);
+	padding: 5px 10px;
+	gap: 5px;
+	background-image: linear-gradient(
+		to top,
+		rgba(0, 0, 0, 0.75),
+		rgba(0, 0, 0, 0)
+	);
 }
 
 .AngelinPlayer__icon {
