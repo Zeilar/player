@@ -101,7 +101,6 @@ export function PlayerControls({
 						{state.isPlaying ? (
 							<IconButton
 								isScrubbing={isScrubbing}
-								disabled={!state.isLoaded}
 								onClick={controller.pause}
 								icon="Pause"
 								tooltip="Pause (space)"
@@ -109,7 +108,6 @@ export function PlayerControls({
 						) : (
 							<IconButton
 								isScrubbing={isScrubbing}
-								disabled={!state.isLoaded}
 								onClick={
 									state.isEnded
 										? controller.restart
