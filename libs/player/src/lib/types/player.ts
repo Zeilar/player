@@ -10,4 +10,4 @@ export interface PlayerCaptions {
 	src: string;
 }
 
-export type BufferRange = [number, number]; // Numbers are in seconds
+export type BufferRange = [number, number]; // Numbers are in

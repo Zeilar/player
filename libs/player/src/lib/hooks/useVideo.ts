@@ -247,6 +247,10 @@ export function useVideo(
 			formattedDuration,
 			formattedProgress,
 			bufferRanges,
+			isEmpty: videoRef.current?.networkState === 0,
+			isIdle: videoRef.current?.networkState === 1,
+			isLoading: videoRef.current?.networkState === 2,
+			hasNoSrc: videoRef.current?.networkState === 3,
 		},
 		{
 			play,
