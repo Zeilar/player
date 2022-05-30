@@ -7,6 +7,7 @@ export interface UseVideoOptions {
 }
 
 export interface UseVideoState {
+	error: ErrorEvent["error"] | null;
 	isPlaying: boolean;
 	isLoaded: boolean;
 	isEnded: boolean;

@@ -17,6 +17,7 @@ export function useVideo(
 	options: UseVideoOptions = DEFAULT_OPTIONS
 ): [UseVideoState, UseVideoController] {
 	const [bufferRanges, setBufferRanges] = useState<BufferRange[]>([]);
+	const [error, setError] = useState<ErrorEvent["error"] | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEnded, setIsEnded] = useState(false);
@@ -200,6 +201,11 @@ export function useVideo(
 			setIsPlaying(!target.paused);
 		}
 
+		function onError({ error }: ErrorEvent) {
+			console.error(error);
+			setError(error);
+		}
+
 		document.addEventListener("fullscreenchange", fullscreenHandler);
 		video.addEventListener("loadeddata", onLoadedData);
 		video.addEventListener("volumechange", onVolumeChange);
@@ -207,6 +213,7 @@ export function useVideo(
 		video.addEventListener("ended", onEnded);
 		video.addEventListener("play", onPlay);
 		video.addEventListener("pause", onPause);
+		video.addEventListener("error", onError);
 
 		return () => {
 			document.removeEventListener("fullscreenchange", fullscreenHandler);
@@ -239,11 +246,12 @@ export function useVideo(
 			isPlaying,
 			isLoaded,
 			isEnded,
-			duration,
-			progress,
 			isMuted,
 			isFullscreen,
 			volume,
+			duration,
+			progress,
+			error,
 			formattedDuration,
 			formattedProgress,
 			bufferRanges,
