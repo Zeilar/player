@@ -9,6 +9,7 @@ import {
 	getVolumeIcon,
 } from "../../common/helpers";
 import { Play, Replay } from "../../assets/svgs";
+import { ScaleLoader } from "react-spinners";
 
 export interface PlayerControlsProps {
 	state: UseVideoState;
@@ -71,19 +72,30 @@ export function PlayerControls({
 		},
 	];
 
+	function bigIcon() {
+		if (state.isLoading) {
+			return (
+				<span className="AngelinPlayer__big-resume-icon">
+					<ScaleLoader loading color="var(--color-text)" />
+				</span>
+			);
+		}
+		return state.isEnded ? (
+			<Replay
+				className="AngelinPlayer__big-resume-icon"
+				data-hidden={state.isPlaying}
+			/>
+		) : (
+			<Play
+				className="AngelinPlayer__big-resume-icon"
+				data-hidden={state.isPlaying}
+			/>
+		);
+	}
+
 	return (
 		<>
-			{state.isEnded ? (
-				<Replay
-					className="AngelinPlayer__big-resume-icon"
-					data-hidden={state.isPlaying}
-				/>
-			) : (
-				<Play
-					className="AngelinPlayer__big-resume-icon"
-					data-hidden={state.isPlaying}
-				/>
-			)}
+			{bigIcon()}
 			<div className="AngelinPlayer__controls" ref={controlsEl}>
 				<div
 					className="AngelinPlayer__timeline"
