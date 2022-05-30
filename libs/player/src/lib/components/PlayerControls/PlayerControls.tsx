@@ -111,6 +111,12 @@ export function PlayerControls({
 				</div>
 				<div className="AngelinPlayer__controls-buttons">
 					<div className="AngelinPlayer__controls-buttons__group">
+						<IconButton
+							isScrubbing={isScrubbing}
+							tooltip="Back 10 seconds"
+							icon="Replay10"
+							onClick={() => controller.skip(-10)}
+						/>
 						{state.isPlaying ? (
 							<IconButton
 								isScrubbing={isScrubbing}
@@ -134,6 +140,12 @@ export function PlayerControls({
 								}
 							/>
 						)}
+						<IconButton
+							isScrubbing={isScrubbing}
+							tooltip="Forward 10 seconds"
+							icon="Forward10"
+							onClick={() => controller.skip(10)}
+						/>
 						{state.isMuted ? (
 							<IconButton
 								isScrubbing={isScrubbing}

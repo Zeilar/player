@@ -10,3 +10,5 @@ export { ReactComponent as Subtitles } from "../../assets/svgs/subtitles.svg";
 export { ReactComponent as HD } from "../../assets/svgs/hd.svg";
 export { ReactComponent as Close } from "../../assets/svgs/close.svg";
 export { ReactComponent as Check } from "../../assets/svgs/check.svg";
+export { ReactComponent as Forward10 } from "../../assets/svgs/forward10.svg";
+export { ReactComponent as Replay10 } from "../../assets/svgs/replay10.svg";

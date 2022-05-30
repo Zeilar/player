@@ -10,7 +10,9 @@ export type Icon =
 	| "Subtitles"
 	| "HD"
 	| "Close"
-	| "Check";
+	| "Check"
+	| "Forward10"
+	| "Replay10";
 
 export type IconComponent = React.FunctionComponent<
 	React.SVGProps<SVGSVGElement> & {

@@ -101,6 +101,8 @@ export function useVideo(
 		isMuted ? unmute() : mute();
 	}
 
+	// console.log(videoRef.current?.networkState);
+
 	/**
 	 * Number must be a float between 0 and 1.
 	 */

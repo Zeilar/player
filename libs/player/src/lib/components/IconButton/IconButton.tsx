@@ -15,6 +15,8 @@ import {
 	VolumeDown,
 	VolumeOff,
 	VolumeUp,
+	Forward10,
+	Replay10,
 } from "../../assets/svgs";
 import { clamp } from "../../common/helpers";
 
@@ -31,6 +33,8 @@ const icons: Record<Icon, IconComponent> = {
 	HD,
 	Close,
 	Check,
+	Replay10,
+	Forward10,
 };
 
 export interface IconButtonProps
