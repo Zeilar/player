@@ -94,6 +94,15 @@ export function PlayerControls({
 						className="AngelinPlayer__timeline-track"
 						data-timeline-track
 					>
+						{state.bufferRanges.map(([start, end], i) => (
+							<div
+								key={i}
+								className="AngelinPlayer__timeline-track__buffer-range"
+								data-buffer-range
+								data-buffer-start={start}
+								data-buffer-end={end}
+							/>
+						))}
 						<div
 							className="AngelinPlayer__timeline-track__progress"
 							style={{ width: progressInPercent }}

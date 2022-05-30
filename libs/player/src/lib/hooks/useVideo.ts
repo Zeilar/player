@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { clamp, formatProgress } from "../common/helpers";
+import { BufferRange } from "../types/player";
 import type {
 	UseVideoController,
 	UseVideoState,
@@ -15,6 +16,7 @@ export function useVideo(
 	videoRef: React.RefObject<HTMLVideoElement>,
 	options: UseVideoOptions = DEFAULT_OPTIONS
 ): [UseVideoState, UseVideoController] {
+	const [bufferRanges, setBufferRanges] = useState<BufferRange[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [isEnded, setIsEnded] = useState(false);
@@ -99,6 +101,16 @@ export function useVideo(
 		isMuted ? unmute() : mute();
 	}
 
+	/**
+	 * Number must be a float between 0 and 1.
+	 */
+	function bumpVolume(offset: Float) {
+		if (!videoRef.current) {
+			return;
+		}
+		videoRef.current.volume = clamp(videoRef.current.volume + offset, 0, 1);
+	}
+
 	const restart = useCallback(() => {
 		reset();
 		goToStart();
@@ -112,15 +124,26 @@ export function useVideo(
 		videoRef.current.currentTime += seconds;
 	}
 
-	/**
-	 * Number must be a float between 0 and 1.
-	 */
-	function bumpVolume(offset: Float) {
+	const getBufferRanges = useCallback(() => {
 		if (!videoRef.current) {
 			return;
 		}
-		videoRef.current.volume = clamp(videoRef.current.volume + offset, 0, 1);
-	}
+		const bufferRanges: BufferRange[] = [];
+		for (let i = 0; i < videoRef.current.buffered.length; i++) {
+			bufferRanges.push([
+				videoRef.current.buffered.start(i),
+				videoRef.current.buffered.end(i),
+			]);
+		}
+		setBufferRanges(bufferRanges);
+	}, [videoRef]);
+
+	useEffect(() => {
+		const interval = setInterval(getBufferRanges, 1000);
+		return () => {
+			clearInterval(interval);
+		};
+	}, [getBufferRanges]);
 
 	useEffect(() => {
 		if (!videoRef.current || isNaN(videoRef.current.duration)) {
@@ -221,6 +244,7 @@ export function useVideo(
 			volume,
 			formattedDuration,
 			formattedProgress,
+			bufferRanges,
 		},
 		{
 			play,

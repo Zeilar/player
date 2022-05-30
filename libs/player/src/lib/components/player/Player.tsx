@@ -116,6 +116,28 @@ export function Player({
 	}
 
 	useEffect(() => {
+		if (state.bufferRanges.length === 0 || !timelineEl.current) {
+			return;
+		}
+		const bufferRangeElements =
+			timelineEl.current.querySelectorAll<HTMLDivElement>(
+				"[data-buffer-range]"
+			);
+		bufferRangeElements.forEach(bufferRangeElement => {
+			const start = Number(bufferRangeElement.dataset["bufferStart"]);
+			const end = Number(bufferRangeElement.dataset["bufferEnd"]);
+			if (isNaN(start) || isNaN(end)) {
+				return;
+			}
+			const duration = end - start;
+			const widthPercent = (duration / state.duration) * 100;
+			const leftPercent = (start / state.duration) * 100;
+			bufferRangeElement.style.setProperty("--left", `${leftPercent}%`);
+			bufferRangeElement.style.setProperty("--width", `${widthPercent}%`);
+		});
+	}, [state.bufferRanges, state.duration]);
+
+	useEffect(() => {
 		function customContextMenu(e: MouseEvent) {
 			if (!wrapperEl.current || !controlsEl.current) {
 				return;

@@ -1,3 +1,5 @@
+import { BufferRange } from "./player";
+
 export type Float = number; // Just to make it more verbose that some things should take floats instead of integers.
 
 export interface UseVideoOptions {
@@ -15,6 +17,7 @@ export interface UseVideoState {
 	volume: number;
 	formattedProgress: string;
 	formattedDuration: string;
+	bufferRanges: BufferRange[];
 }
 
 export interface UseVideoController {

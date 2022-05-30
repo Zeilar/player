@@ -137,6 +137,7 @@
 
 .AngelinPlayer__timeline-track {
 	cursor: pointer;
+	position: relative;
 	background-color: rgba(255, 255, 255, 0.25);
 	height: 100%;
 	width: 100%;
@@ -146,6 +147,17 @@
 	background-color: var(--color-primary);
 	position: relative;
 	height: 100%;
+}
+
+.AngelinPlayer__timeline-track__buffer-range {
+	--width: 0;
+	--left: 0;
+	background-color: rgba(255, 255, 255, 0.35);
+	position: absolute;
+	top: 0;
+	height: 100%;
+	width: var(--width);
+	left: var(--left);
 }
 
 .AngelinPlayer__big-resume-icon {
