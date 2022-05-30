@@ -11,3 +11,10 @@ export interface PlayerCaptions {
 }
 
 export type BufferRange = [number, number]; // Numbers are in
+
+export enum PlayerState {
+	EMPTY = 0,
+	IDLE = 1,
+	LOADING = 2,
+	NO_SRC = 3,
+}

@@ -19,10 +19,6 @@ export interface UseVideoState {
 	formattedProgress: string;
 	formattedDuration: string;
 	bufferRanges: BufferRange[];
-	isEmpty: boolean;
-	isIdle: boolean;
-	isLoading: boolean;
-	hasNoSrc: boolean;
 }
 
 export interface UseVideoController {

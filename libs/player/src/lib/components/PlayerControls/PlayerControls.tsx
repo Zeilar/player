@@ -8,8 +8,6 @@ import {
 	formatProgress,
 	getVolumeIcon,
 } from "../../common/helpers";
-import { Play, Replay } from "../../assets/svgs";
-import { ScaleLoader } from "react-spinners";
 
 export interface PlayerControlsProps {
 	state: UseVideoState;
@@ -72,161 +70,137 @@ export function PlayerControls({
 		},
 	];
 
-	function bigIcon() {
-		if (state.isLoading) {
-			return (
-				<span className="AngelinPlayer__big-resume-icon">
-					<ScaleLoader loading color="var(--color-text)" />
-				</span>
-			);
-		}
-		return state.isEnded ? (
-			<Replay
-				className="AngelinPlayer__big-resume-icon"
-				data-hidden={state.isPlaying}
-			/>
-		) : (
-			<Play
-				className="AngelinPlayer__big-resume-icon"
-				data-hidden={state.isPlaying}
-			/>
-		);
-	}
-
 	return (
-		<>
-			{bigIcon()}
-			<div className="AngelinPlayer__controls" ref={controlsEl}>
+		<div className="AngelinPlayer__controls" ref={controlsEl}>
+			<div
+				className="AngelinPlayer__timeline"
+				ref={timelineEl}
+				onMouseDown={onTimelineClick}
+			>
 				<div
-					className="AngelinPlayer__timeline"
-					ref={timelineEl}
-					onMouseDown={onTimelineClick}
+					className="AngelinPlayer__timeline-track"
+					data-timeline-track
 				>
-					<div
-						className="AngelinPlayer__timeline-track"
-						data-timeline-track
-					>
-						{state.bufferRanges.map(([start, end], i) => (
-							<div
-								key={i}
-								className="AngelinPlayer__timeline-track__buffer-range"
-								data-buffer-range
-								data-buffer-start={start}
-								data-buffer-end={end}
-							/>
-						))}
+					{state.bufferRanges.map(([start, end], i) => (
 						<div
-							className="AngelinPlayer__timeline-track__progress"
-							style={{ width: progressInPercent }}
+							key={i}
+							className="AngelinPlayer__timeline-track__buffer-range"
+							data-buffer-range
+							data-buffer-start={start}
+							data-buffer-end={end}
 						/>
-					</div>
-				</div>
-				<div className="AngelinPlayer__controls-buttons">
-					<div className="AngelinPlayer__controls-buttons__group">
-						<IconButton
-							isScrubbing={isScrubbing}
-							tooltip="Back 10 seconds"
-							icon="Replay10"
-							onClick={() => controller.skip(-10)}
-						/>
-						{state.isPlaying ? (
-							<IconButton
-								isScrubbing={isScrubbing}
-								onClick={controller.pause}
-								icon="Pause"
-								tooltip="Pause (space)"
-							/>
-						) : (
-							<IconButton
-								isScrubbing={isScrubbing}
-								onClick={
-									state.isEnded
-										? controller.restart
-										: controller.play
-								}
-								icon={state.isEnded ? "Replay" : "Play"}
-								tooltip={
-									state.isEnded
-										? "Replay (space)"
-										: "Play (space)"
-								}
-							/>
-						)}
-						<IconButton
-							isScrubbing={isScrubbing}
-							tooltip="Forward 10 seconds"
-							icon="Forward10"
-							onClick={() => controller.skip(10)}
-						/>
-						{state.isMuted ? (
-							<IconButton
-								isScrubbing={isScrubbing}
-								icon="VolumeOff"
-								onClick={controller.unmute}
-								tooltip="Unmute (m)"
-							/>
-						) : (
-							<IconButton
-								isScrubbing={isScrubbing}
-								icon={getVolumeIcon(state.volume)}
-								onClick={controller.mute}
-								tooltip="Mute (m)"
-							/>
-						)}
-						<input
-							className="AngelinPlayer__controls-volumeslider"
-							type="range"
-							value={state.volume * 100}
-							onChange={e =>
-								controller.changeVolume(
-									parseInt(e.target.value) / 100
-								)
-							}
-							min={0}
-							max={100}
-							style={{ backgroundSize: `${state.volume * 100}%` }}
-						/>
-						<span className="AngelinPlayer__controls-progress">
-							{`${formattedProgress} / ${formattedDuration}`}
-						</span>
-					</div>
-					<div className="AngelinPlayer__controls-buttons__group">
-						<IconButton
-							isScrubbing={isScrubbing}
-							icon="Subtitles"
-							menuItems={captionsMenu}
-							menuTitle="Captions"
-							tooltip="Captions (c)"
-						/>
-						<IconButton
-							isScrubbing={isScrubbing}
-							icon="HD"
-							menuItems={qualities.map(quality => ({
-								label: quality.label,
-								onClick: () => changeQuality(quality.id),
-								active: quality.id === currentQualityId,
-							}))}
-							menuTitle="Quality"
-							tooltip="Quality"
-						/>
-						{state.isFullscreen ? (
-							<IconButton
-								isScrubbing={isScrubbing}
-								onClick={exitFullscreen}
-								icon="FullscreenExit"
-								tooltip="Fullscreen (f)"
-							/>
-						) : (
-							<IconButton
-								isScrubbing={isScrubbing}
-								onClick={enterFullscreen}
-								icon="FullscreenOpen"
-								tooltip="Exit fullscreen (f)"
-							/>
-						)}
-					</div>
+					))}
+					<div
+						className="AngelinPlayer__timeline-track__progress"
+						style={{ width: progressInPercent }}
+					/>
 				</div>
 			</div>
-		</>
+			<div className="AngelinPlayer__controls-buttons">
+				<div className="AngelinPlayer__controls-buttons__group">
+					<IconButton
+						isScrubbing={isScrubbing}
+						tooltip="Back 10 seconds"
+						icon="Replay10"
+						onClick={() => controller.skip(-10)}
+					/>
+					{state.isPlaying ? (
+						<IconButton
+							isScrubbing={isScrubbing}
+							onClick={controller.pause}
+							icon="Pause"
+							tooltip="Pause (space)"
+						/>
+					) : (
+						<IconButton
+							isScrubbing={isScrubbing}
+							onClick={
+								state.isEnded
+									? controller.restart
+									: controller.play
+							}
+							icon={state.isEnded ? "Replay" : "Play"}
+							tooltip={
+								state.isEnded
+									? "Replay (space)"
+									: "Play (space)"
+							}
+						/>
+					)}
+					<IconButton
+						isScrubbing={isScrubbing}
+						tooltip="Forward 10 seconds"
+						icon="Forward10"
+						onClick={() => controller.skip(10)}
+					/>
+					{state.isMuted ? (
+						<IconButton
+							isScrubbing={isScrubbing}
+							icon="VolumeOff"
+							onClick={controller.unmute}
+							tooltip="Unmute (m)"
+						/>
+					) : (
+						<IconButton
+							isScrubbing={isScrubbing}
+							icon={getVolumeIcon(state.volume)}
+							onClick={controller.mute}
+							tooltip="Mute (m)"
+						/>
+					)}
+					<input
+						className="AngelinPlayer__controls-volumeslider"
+						type="range"
+						value={state.volume * 100}
+						onChange={e =>
+							controller.changeVolume(
+								parseInt(e.target.value) / 100
+							)
+						}
+						min={0}
+						max={100}
+						style={{ backgroundSize: `${state.volume * 100}%` }}
+					/>
+					<span className="AngelinPlayer__controls-progress">
+						{`${formattedProgress} / ${formattedDuration}`}
+					</span>
+				</div>
+				<div className="AngelinPlayer__controls-buttons__group">
+					<IconButton
+						isScrubbing={isScrubbing}
+						icon="Subtitles"
+						menuItems={captionsMenu}
+						menuTitle="Captions"
+						tooltip="Captions (c)"
+					/>
+					<IconButton
+						isScrubbing={isScrubbing}
+						icon="HD"
+						menuItems={qualities.map(quality => ({
+							label: quality.label,
+							onClick: () => changeQuality(quality.id),
+							active: quality.id === currentQualityId,
+						}))}
+						menuTitle="Quality"
+						tooltip="Quality"
+					/>
+					{state.isFullscreen ? (
+						<IconButton
+							isScrubbing={isScrubbing}
+							onClick={exitFullscreen}
+							icon="FullscreenExit"
+							tooltip="Fullscreen (f)"
+						/>
+					) : (
+						<IconButton
+							isScrubbing={isScrubbing}
+							onClick={enterFullscreen}
+							icon="FullscreenOpen"
+							tooltip="Exit fullscreen (f)"
+						/>
+					)}
+				</div>
+			</div>
+		</div>
 	);
 }

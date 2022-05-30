@@ -1,7 +1,7 @@
 import "@fontsource/fira-sans";
 import "../../styles/player.scss";
 import { useRef, useState, useEffect, useCallback } from "react";
-import { PlayerCaptions, PlayerQuality } from "../../types/player";
+import { PlayerCaptions, PlayerQuality, PlayerState } from "../../types/player";
 import { PlayerControls } from "../PlayerControls";
 import { useVideo } from "../../hooks/useVideo";
 import {
@@ -10,6 +10,8 @@ import {
 	getScrubberPercentage,
 	toggleFullscreen,
 } from "../../common/helpers";
+import { Play, Replay } from "../../assets/svgs";
+import { ScaleLoader } from "react-spinners";
 
 export interface PlayerProps {
 	qualities: PlayerQuality[];
@@ -249,11 +251,15 @@ export function Player({
 		}
 	}
 
+	const playerState = videoEl.current?.networkState ?? 0;
+
 	return (
 		<div
 			className="AngelinPlayer"
 			data-player
-			data-paused={state.isPlaying === false || state.isLoading}
+			data-paused={
+				state.isPlaying === false || playerState === PlayerState.LOADING
+			}
 			ref={wrapperEl}
 			tabIndex={1}
 			onKeyDown={shortcutHandler}
@@ -264,6 +270,22 @@ export function Player({
 				style={scrubberTooltipCss}
 			>
 				{state.formattedProgress}
+			</span>
+			{!state.isPlaying && state.isEnded && (
+				<Replay className="AngelinPlayer__big-resume-icon" />
+			)}
+			{!state.isPlaying && !state.isEnded && (
+				<Play className="AngelinPlayer__big-resume-icon" />
+			)}
+			<span className="AngelinPlayer__big-resume-icon">
+				<ScaleLoader
+					loading={
+						!isScrubbing &&
+						state.isPlaying &&
+						playerState === PlayerState.LOADING
+					}
+					color="var(--color-text)"
+				/>
 			</span>
 			<PlayerControls
 				state={state}
