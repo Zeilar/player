@@ -253,7 +253,7 @@ export function Player({
 		<div
 			className="AngelinPlayer"
 			data-player
-			data-paused={state.isPlaying === false}
+			data-paused={state.isPlaying === false || state.isLoading}
 			ref={wrapperEl}
 			tabIndex={1}
 			onKeyDown={shortcutHandler}

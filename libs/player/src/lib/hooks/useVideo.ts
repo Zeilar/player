@@ -142,7 +142,7 @@ export function useVideo(
 	}, [videoRef]);
 
 	useEffect(() => {
-		const interval = setInterval(getBufferRanges, 1000);
+		const interval = setInterval(getBufferRanges, 1);
 		return () => {
 			clearInterval(interval);
 		};
