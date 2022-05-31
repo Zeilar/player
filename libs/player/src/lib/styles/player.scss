@@ -340,7 +340,7 @@
 
 .AngelinPlayer__progress-tooltip {
 	@include tooltip;
-	transform: translateX(50%);
+	transform: translateX(-50%);
 }
 
 .AngelinPlayer__button-tooltip {

@@ -7,6 +7,7 @@ import { useVideo } from "../../hooks/useVideo";
 import {
 	clamp,
 	enterFullscreen,
+	formatProgress,
 	getScrubberPercentage,
 	toggleFullscreen,
 } from "../../common/helpers";
@@ -38,8 +39,10 @@ export function Player({
 	const controlsEl = useRef<HTMLDivElement>(null);
 
 	const [isScrubbing, setIsScrubbing] = useState(false);
+	const [scrubberTooltipProgress, setScrubberTooltipProgress] =
+		useState("0:00");
 	const [scrubberTooltipCss, setScrubberTooltipCss] =
-		useState<React.CSSProperties>({});
+		useState<React.CSSProperties>();
 	const [currentQualityId, setCurrentQualityId] = useState<number>(
 		qualities[0].id
 	);
@@ -55,19 +58,21 @@ export function Player({
 	}
 
 	const positionScrubberTooltip = useCallback(
-		(percent: number) => {
+		(e: React.MouseEvent | MouseEvent) => {
 			if (!tooltipEl.current || !videoEl.current || !timelineEl.current) {
 				return;
 			}
 			const tooltipElRect = tooltipEl.current.getBoundingClientRect();
-			const videoElRect = videoEl.current.getBoundingClientRect();
 			const timelineElRect = timelineEl.current.getBoundingClientRect();
 			const width = state.progress >= 60 * 60 ? 50 : 40;
 			const left = clamp(
-				videoElRect.width * percent - width / 2,
-				videoElRect.x - 10,
-				videoElRect.width - width - 10
+				e.clientX,
+				timelineElRect.x + 20,
+				timelineElRect.width + 12
 			);
+			const percent = getScrubberPercentage(e, timelineEl.current);
+			const progress = videoEl.current.duration * percent;
+			setScrubberTooltipProgress(formatProgress(progress));
 			setScrubberTooltipCss({
 				top: timelineElRect.top - tooltipElRect.height - 5,
 				left,
@@ -76,6 +81,13 @@ export function Player({
 		},
 		[state.progress]
 	);
+
+	function resetScrubberTooltip() {
+		if (isScrubbing) {
+			return;
+		}
+		setScrubberTooltipCss(undefined);
+	}
 
 	const updateTimeline = useCallback(
 		(e: React.MouseEvent | MouseEvent) => {
@@ -86,7 +98,8 @@ export function Player({
 			const progress = videoEl.current.duration * percent;
 			videoEl.current.currentTime = progress;
 			controller.setProgress(progress); // Need this, otherwise the number only updates after video has loaded the new progress
-			positionScrubberTooltip(percent);
+			positionScrubberTooltip(e);
+			setScrubberTooltipProgress(formatProgress(progress));
 		},
 		[positionScrubberTooltip, controller]
 	);
@@ -198,7 +211,7 @@ export function Player({
 			}
 			e.preventDefault();
 			setIsScrubbing(false);
-			setScrubberTooltipCss({});
+			setScrubberTooltipCss(undefined);
 		}
 
 		document.addEventListener("mousemove", scrub);
@@ -269,7 +282,7 @@ export function Player({
 				ref={tooltipEl}
 				style={scrubberTooltipCss}
 			>
-				{state.formattedProgress}
+				{scrubberTooltipProgress}
 			</span>
 			{!state.isPlaying && state.isEnded && (
 				<Replay className="AngelinPlayer__big-resume-icon" />
@@ -292,11 +305,13 @@ export function Player({
 				controller={controller}
 				controlsEl={controlsEl}
 				timelineEl={timelineEl}
+				positionScrubberTooltip={positionScrubberTooltip}
 				changeCaptions={index => setActiveCaptionsIndex(index)}
 				enterFullscreen={() => enterFullscreen(wrapperEl.current)}
 				onTimelineClick={onTimelineClick}
 				captions={captions}
 				qualities={qualities}
+				resetScrubberTooltip={resetScrubberTooltip}
 				activeCaptionsIndex={activeCaptionsIndex}
 				currentQualityId={currentQualityId}
 				changeQuality={changeQuality}

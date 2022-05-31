@@ -19,6 +19,8 @@ export interface PlayerControlsProps {
 	currentQualityId: number;
 	qualities: PlayerQuality[];
 	captions?: PlayerCaptions[];
+	resetScrubberTooltip(): void;
+	positionScrubberTooltip(e: React.MouseEvent | MouseEvent): void;
 	changeCaptions(index: number | null): void;
 	onTimelineClick(e: React.MouseEvent<HTMLDivElement>): void;
 	enterFullscreen(): void;
@@ -34,9 +36,11 @@ export function PlayerControls({
 	timelineEl,
 	enterFullscreen,
 	changeCaptions,
+	resetScrubberTooltip,
 	activeCaptionsIndex,
 	currentQualityId,
 	changeQuality,
+	positionScrubberTooltip,
 	qualities,
 	isScrubbing,
 }: PlayerControlsProps) {
@@ -76,6 +80,8 @@ export function PlayerControls({
 				className="AngelinPlayer__timeline"
 				ref={timelineEl}
 				onMouseDown={onTimelineClick}
+				onMouseMove={positionScrubberTooltip}
+				onMouseLeave={resetScrubberTooltip}
 			>
 				<div
 					className="AngelinPlayer__timeline-track"
