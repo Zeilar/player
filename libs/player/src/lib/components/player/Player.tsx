@@ -265,6 +265,7 @@ export function Player({
 	}
 
 	const playerState = videoEl.current?.networkState ?? 0;
+	const loading = !isScrubbing && playerState === PlayerState.LOADING;
 
 	return (
 		<div
@@ -284,22 +285,15 @@ export function Player({
 			>
 				{scrubberTooltipProgress}
 			</span>
-			{!state.isPlaying && state.isEnded && (
+			<span className="AngelinPlayer__big-resume-icon">
+				<ScaleLoader loading={loading} color="var(--color-text)" />
+			</span>
+			{!state.isPlaying && state.isEnded && !loading && (
 				<Replay className="AngelinPlayer__big-resume-icon" />
 			)}
-			{!state.isPlaying && !state.isEnded && (
+			{!state.isPlaying && !state.isEnded && !loading && (
 				<Play className="AngelinPlayer__big-resume-icon" />
 			)}
-			<span className="AngelinPlayer__big-resume-icon">
-				<ScaleLoader
-					loading={
-						!isScrubbing &&
-						state.isPlaying &&
-						playerState === PlayerState.LOADING
-					}
-					color="var(--color-text)"
-				/>
-			</span>
 			<PlayerControls
 				state={state}
 				controller={controller}
