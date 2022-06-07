@@ -11,8 +11,34 @@ import {
 	getScrubberPercentage,
 	toggleFullscreen,
 } from "../../common/helpers";
-import { Play, Replay } from "../../assets/svgs";
+import * as Icons from "../../assets/svgs";
 import { ScaleLoader } from "react-spinners";
+import { Icon } from "../../types/icons";
+
+function ButtonAnimations({ active }: { active: Icon | null }) {
+	if (!active) {
+		return null;
+	}
+	let position = "center";
+	const Component = Icons[active];
+	switch (active) {
+		case "Forward10":
+			position = "right";
+			break;
+		case "Replay10":
+			position = "left";
+			break;
+	}
+	return (
+		<div
+			key={active}
+			data-position={position}
+			className="AngelinPlayer__icon-popper"
+		>
+			<Component />
+		</div>
+	);
+}
 
 export interface PlayerProps {
 	qualities: PlayerQuality[];
@@ -38,6 +64,8 @@ export function Player({
 	const timelineEl = useRef<HTMLDivElement>(null);
 	const controlsEl = useRef<HTMLDivElement>(null);
 
+	const [activeButtonAnimation, setActiveButtonAnimation] =
+		useState<Icon | null>(null);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const [scrubberTooltipProgress, setScrubberTooltipProgress] =
 		useState("0:00");
@@ -232,9 +260,11 @@ export function Player({
 		switch (e.key) {
 			case "Home":
 				controller.goToStart();
+				setActiveButtonAnimation("Replay10");
 				break;
 			case "End":
 				controller.goToEnd();
+				setActiveButtonAnimation("Forward10");
 				break;
 			case "c":
 				toggleCaptions();
@@ -244,22 +274,30 @@ export function Player({
 				break;
 			case " ":
 				e.preventDefault();
+				setActiveButtonAnimation(state.isPlaying ? "Pause" : "Play");
 				controller.togglePlaying();
 				break;
 			case "ArrowRight":
 				controller.skip(5);
+				setActiveButtonAnimation("Forward10");
 				break;
 			case "ArrowLeft":
 				controller.skip(-5);
+				setActiveButtonAnimation("Replay10");
 				break;
 			case "ArrowUp":
 				controller.bumpVolume(0.05);
+				setActiveButtonAnimation("VolumeUp");
 				break;
 			case "ArrowDown":
 				controller.bumpVolume(-0.05);
+				setActiveButtonAnimation("VolumeDown");
 				break;
 			case "m":
 				controller.toggleMute();
+				setActiveButtonAnimation(
+					state.isMuted ? "VolumeUp" : "VolumeOff"
+				);
 				break;
 		}
 	}
@@ -288,12 +326,7 @@ export function Player({
 			<span className="AngelinPlayer__big-resume-icon">
 				<ScaleLoader loading={loading} color="var(--color-text)" />
 			</span>
-			{!state.isPlaying && state.isEnded && !loading && (
-				<Replay className="AngelinPlayer__big-resume-icon" />
-			)}
-			{!state.isPlaying && !state.isEnded && !loading && (
-				<Play className="AngelinPlayer__big-resume-icon" />
-			)}
+			<ButtonAnimations active={activeButtonAnimation} />
 			<PlayerControls
 				state={state}
 				controller={controller}

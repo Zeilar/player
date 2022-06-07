@@ -347,3 +347,32 @@
 	@include tooltip;
 	padding: 5px 10px;
 }
+
+@keyframes popperAnimation {
+	0% {
+		opacity: 0.75;
+	}
+	25% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(1.25);
+	}
+}
+
+.AngelinPlayer__icon-popper {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 50%;
+	left: 50%;
+	fill: var(--color-text);
+	animation: popperAnimation 0.75s forwards;
+	svg {
+		width: 50px;
+		height: 50px;
+	}
+}
